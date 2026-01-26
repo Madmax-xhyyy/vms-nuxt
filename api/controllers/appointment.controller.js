@@ -2,7 +2,7 @@ import Joi from "joi";
 import { schemaAppoinment, schemaAppoinmentStatusUpdateById } from "../models/appointment.model.js";
 import { useAppointmentRepo } from "../repositories/appointment.repository.js";
 
-export function useAppoinmentController() {
+export function useAppointmentController() {
   // Get all
   async function getAll(req, res) {
     const page = parseInt(req.query.page) || 1;
@@ -10,13 +10,30 @@ export function useAppoinmentController() {
     const status = req.query.status;
     const search = req.query.search ?? "";
     try {
-      const items = await useAppoinmentRepo().getAll({ page, limit, status, search });
+      const items = await useAppointmentRepo().getAll({ page, limit, status, search });
       res.status(200).json(items);
       return;
     } catch (error) {
       res
         .status(500)
         .json({ message: error.message || "Failed to get appointments" });
+      return;
+    }
+  }
+
+  async function getAllPendingAppointments(req, res) {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const status = req.params.status;
+    const search = req.query.search ?? "";
+    try {
+      const items = await useAppointmentRepo().getAllPendingAppointments({ page, limit, status, search });
+      res.status(200).json(items);
+      return;
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error.message || "Failed to get pending appointments" });
       return;
     }
   }
@@ -35,7 +52,7 @@ export function useAppoinmentController() {
     }
 
     try {
-      const items = await useAppoinmentRepo().getById(req.params.id);
+      const items = await useAppointmentRepo().getById(req.params.id);
       res.status(200).json(items);
       return;
     } catch (error) {
@@ -57,7 +74,7 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().add(value);
+      const message = await useAppointmentRepo().add(value);
       res.status(200).json({ message });
       return;
     } catch (error) {
@@ -107,7 +124,7 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().updateById(
+      const message = await useAppointmentRepo().updateById(
         req.params.id,
         req.body,
       );
@@ -121,20 +138,10 @@ export function useAppoinmentController() {
   }
 
   async function updateStatusById(req, res) {
-    const validationSchema = Joi.object(schemaAppoinmentStatusUpdateById);
-
-    const { error } = validationSchema.validate(req.body);
-    if (error) {
-      res
-        .status(400)
-        .json({ message: "Validation failed", errors: error.details });
-      return;
-    }
-
     try {
-      const message = await useAppoinmentRepo().updateStatusById(
-        req.body.id,
-        req.body.status,
+      const message = await useAppointmentRepo().updateStatusById(
+        req.params.id,
+        { status: req.params.status, updatedAt: new Date() }
       );
       res.status(200).json({ message });
     } catch (error) {
@@ -158,7 +165,7 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().deleteById(req.params.id);
+      const message = await useAppointmentRepo().deleteById(req.params.id);
       res.status(200).json({ message });
     } catch (error) {
       res
@@ -168,5 +175,5 @@ export function useAppoinmentController() {
     }
   }
 
-  return { getAll, getById, add, updateById, updateStatusById, deleteById };
+  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, deleteById };
 }

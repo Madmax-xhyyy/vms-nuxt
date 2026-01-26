@@ -1,27 +1,30 @@
 import express from "express";
-import { useAppoinmentController } from "../controllers/appointment.controller.js";
+import { useAppointmentController } from "../controllers/appointment.controller.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-export default function useAppoinmentRoute() {
+export default function useAppointmentRoute() {
   // Get all
-  router.get("/", requireAuth, useAppoinmentController().getAll);
+  router.get("/", requireAuth, useAppointmentController().getAll);
 
   // Get by id
-  router.get("/id/:id", requireAuth, useAppoinmentController().getById);
+  router.get("/id/:id", requireAuth, useAppointmentController().getById);
 
   // Add new
-  router.post("/", requireAuth, useAppoinmentController().add);
+  router.post("/", requireAuth, useAppointmentController().add);
 
   // Update by id
-  router.patch("/id/:id", requireAuth, useAppoinmentController().updateById);
+  router.patch("/id/:id", requireAuth, useAppointmentController().updateById);
 
   // Update status by id
-  router.patch("/id/:id/status/:status", requireAuth, useAppoinmentController().updateStatusById);
+  router.patch("/id/:id/status/:status", requireAuth, useAppointmentController().updateStatusById);
+
+  // Get all pending appointments
+  router.get("/status/pending", requireAuth, useAppointmentController().getAllPendingAppointments);
 
   // Delete by id
-  router.delete("/id/:id", requireAuth, useAppoinmentController().deleteById);
+  router.delete("/id/:id", requireAuth, useAppointmentController().deleteById);
 
   return router;
 }

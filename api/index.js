@@ -4,14 +4,13 @@ import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import { useUserService } from "./services/user.service.js";
 dotenv.config();
 
 // App Config - Initialize Express application
 const app = express();
 app.use(cookieParser());
 
-import { PORT, MONGO_URI, MONGO_DB } from "./config.js";
+import { MONGO_URI, MONGO_DB } from "./config.js";
 
 // Database Connection
 const client = new MongoClient(MONGO_URI);
@@ -22,7 +21,10 @@ async function connectToDB() {
 
 
 // Middleware Pipeline
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 app.use(express.json());
 
 // Health Check Route
@@ -34,7 +36,7 @@ app.get("/health", (req, res) => {
 // Routes Import
 import useAuthRoute from "./routes/auth.route.js";
 import useProductRoute from "./routes/product.route.js";
-import useAppoinmentRoute from "./routes/appointment.route.js";
+import useAppointmentRoute from "./routes/appointment.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -59,21 +61,21 @@ connectToDB().then(async () => {
   app.use("/api/auth", useAuthRoute());
 
   // After authentication routes, add:
-  app.use("/api/appointment", useAppoinmentRoute());
-  app.use("/api/product", useProductRoute());
+  app.use("/api/appointments", useAppointmentRoute());
+  app.use("/api/products", useProductRoute());
 
 
   // Error handling middleware (must be last)
   app.use(errorHandler);
 
   // Server Startup
-  const PORT = 5000;
+  const LISTEN_PORT = process.env.PORT || 5000;
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  app.listen(LISTEN_PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${LISTEN_PORT}`);
     logger.log({
       level: "info",
-      message: `🚀 Server running at http://localhost:${PORT}`,
+      message: `🚀 Server running at http://localhost:${LISTEN_PORT}`,
     });
   });
 

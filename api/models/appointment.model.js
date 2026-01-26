@@ -2,6 +2,7 @@ import Joi from "joi";
 
 export const schemaAppoinment = Joi.object({
   _id: Joi.string().hex().length(24).required(),
+  code: Joi.string().trim().min(1).max(200).required(),
   fullName: Joi.string().trim().min(1).max(200).required(),
   email: Joi.string().trim().min(1).max(200).required(),
   phone: Joi.string().trim().min(1).max(200).required(),
@@ -35,6 +36,7 @@ export function modelAppoinment(value) {
 
   return {
     _id: value._id,
+    code: value.code,
     fullName: value.fullName,
     email: value.email,
     phone: value.phone,

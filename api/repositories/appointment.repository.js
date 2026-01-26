@@ -19,6 +19,7 @@ export function useAppointmentRepo() {
         {
           key: {
             fullName: "text",
+            code: "text",
             email: "text",
             phone: "text",
             address: "text",
@@ -78,6 +79,45 @@ export function useAppointmentRepo() {
     }
   }
 
+  async function getAllPendingAppointments({
+    page = 1,
+    limit = 10,
+    status = "pending",
+    search = "",
+  } = {}) {
+    page = page > 0 ? page - 1 : page;
+
+    const query = { status };
+
+    if (search) {
+      query.$text = { $search: search };
+    }
+    try {
+      const items = await collection
+        .aggregate([
+          {
+            $match: query,
+          },
+          {
+            $sort: { createdAt: -1 },
+          },
+          {
+            $skip: page * limit,
+          },
+          {
+            $limit: limit,
+          },
+
+        ])
+        .toArray();
+
+      const length = await collection.countDocuments(query);
+      return paginate({ items, page, limit, length });
+    } catch (error) {
+      throw new Error("Failed to get pending appointments: " + error.message);
+    }
+  }
+
   async function getById(id) {
     try {
       return await collection.findOne({ _id: new ObjectId(id) });
@@ -113,7 +153,10 @@ export function useAppointmentRepo() {
     try {
       await collection.updateOne({ _id: id }, { $set: value });
       return "Successfully updated appointment";
-    } catch (error) { }
+    } catch (error) {
+      logger.log({ level: "error", message: "Failed to update appointment: " + error.message });
+      throw new Error("Failed to update appointment: " + error.message);
+    }
   }
 
   async function updateStatusById(id, value) {
@@ -133,7 +176,10 @@ export function useAppointmentRepo() {
     try {
       await collection.updateOne({ _id: id }, { $set: value });
       return "Successfully updated appointment status";
-    } catch (error) { }
+    } catch (error) {
+      logger.log({ level: "error", message: "Failed to update appointment status: " + error.message });
+      throw new Error("Failed to update appointment status: " + error.message);
+    }
   }
 
   async function deleteById(id) {
@@ -157,5 +203,5 @@ export function useAppointmentRepo() {
     }
   }
 
-  return { getAll, getById, add, updateById, updateStatusById, deleteById, createAppointmentIndexes };
+  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, deleteById, createAppointmentIndexes };
 }
