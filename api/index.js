@@ -4,6 +4,7 @@ import cors from "cors";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { useUserService } from "./services/user.service.js";
 dotenv.config();
 
 // App Config - Initialize Express application
@@ -32,12 +33,16 @@ app.get("/health", (req, res) => {
 
 // Routes Import
 import useAuthRoute from "./routes/auth.route.js";
-
+import useProductRoute from "./routes/product.route.js";
+import useAppoinmentRoute from "./routes/appointment.route.js";
 export let db;
 
 import setup from "./setup.js";
 import { errorHandler } from "./middleware/error.middleware.js";
 import { logger } from "./utils/logger.util.js";
+
+
+
 
 // Database Export & Setup Script
 connectToDB().then(async () => {
@@ -54,6 +59,8 @@ connectToDB().then(async () => {
   app.use("/api/auth", useAuthRoute());
 
   // After authentication routes, add:
+  app.use("/api/appointment", useAppoinmentRoute());
+  app.use("/api/product", useProductRoute());
 
 
   // Error handling middleware (must be last)
@@ -69,4 +76,6 @@ connectToDB().then(async () => {
       message: `🚀 Server running at http://localhost:${PORT}`,
     });
   });
+
 });
+

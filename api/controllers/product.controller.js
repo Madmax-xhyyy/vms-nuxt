@@ -1,8 +1,8 @@
 import Joi from "joi";
-import { schemaAppoinment, schemaAppoinmentStatusUpdateById } from "../models/appointment.model.js";
-import { useAppointmentRepo } from "../repositories/appointment.repository.js";
+import { schemaProduct, schemaProductUpdateStockById } from "../models/product.model.js";
+import { useProductRepo } from "../repositories/product.repository.js";
 
-export function useAppoinmentController() {
+export function useProductController() {
   // Get all
   async function getAll(req, res) {
     const page = parseInt(req.query.page) || 1;
@@ -10,13 +10,13 @@ export function useAppoinmentController() {
     const status = req.query.status;
     const search = req.query.search ?? "";
     try {
-      const items = await useAppoinmentRepo().getAll({ page, limit, status, search });
+      const items = await useProductRepo().getAll({ page, limit, status, search });
       res.status(200).json(items);
       return;
     } catch (error) {
       res
         .status(500)
-        .json({ message: error.message || "Failed to get appointments" });
+        .json({ message: error.message || "Failed to get products" });
       return;
     }
   }
@@ -35,20 +35,20 @@ export function useAppoinmentController() {
     }
 
     try {
-      const items = await useAppoinmentRepo().getById(req.params.id);
+      const items = await useProductRepo().getById(req.params.id);
       res.status(200).json(items);
       return;
     } catch (error) {
       res
         .status(500)
-        .json({ message: error.message || "Failed to get appointment by id" });
+        .json({ message: error.message || "Failed to get product by id" });
       return;
     }
   }
 
   async function add(req, res) {
     const value = req.body;
-    const { error } = schemaAppoinment.validate(value);
+    const { error } = schemaProduct.validate(value);
     if (error) {
       res
         .status(400)
@@ -57,13 +57,13 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().add(value);
+      const message = await useProductRepo().add(value);
       res.status(200).json({ message });
       return;
     } catch (error) {
       res
         .status(500)
-        .json({ message: error.message || "Failed to add appointment" });
+        .json({ message: error.message || "Failed to add product" });
       return;
     }
   }
@@ -84,18 +84,9 @@ export function useAppoinmentController() {
 
     // 2️⃣ validate body ONLY
     const bodySchema = Joi.object({
-      fullName: Joi.string().trim().min(1).max(200).required(),
-      email: Joi.string().trim().max(200).required(),
-      phone: Joi.string().trim().max(200).required(),
-      address: Joi.string().trim().max(200).required(),
-      petName: Joi.string().trim().max(200).required(),
-      petType: Joi.string().trim().max(200).required(),
-      petBreed: Joi.string().trim().max(200).required(),
-      petAge: Joi.string().trim().max(200).required(),
-      services: Joi.string().trim().max(200).required(),
-      date: Joi.date().required(),
-      time: Joi.string().trim().max(200).required(),
-      status: Joi.string().trim().max(200).required(),
+      name: Joi.string().trim().min(1).max(200).required(),
+      stock: Joi.number().required(),
+      status: Joi.string().trim().max(200).optional(),
     });
 
     const { error: bodyError } = bodySchema.validate(req.body);
@@ -107,7 +98,7 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().updateById(
+      const message = await useProductRepo().updateById(
         req.params.id,
         req.body,
       );
@@ -115,13 +106,13 @@ export function useAppoinmentController() {
       res.status(200).json({ message });
     } catch (error) {
       res.status(500).json({
-        message: error.message || "Failed to update appointment",
+        message: error.message || "Failed to update product",
       });
     }
   }
 
-  async function updateStatusById(req, res) {
-    const validationSchema = Joi.object(schemaAppoinmentStatusUpdateById);
+  async function updateStockById(req, res) {
+    const validationSchema = Joi.object(schemaProductUpdateStockById);
 
     const { error } = validationSchema.validate(req.body);
     if (error) {
@@ -132,15 +123,15 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().updateStatusById(
+      const message = await useProductRepo().updateStockById(
         req.body.id,
-        req.body.status,
+        req.body.stock,
       );
       res.status(200).json({ message });
     } catch (error) {
       res
         .status(500)
-        .json({ message: error.message || "Failed to update appointment status" });
+        .json({ message: error.message || "Failed to update product stock" });
     }
   }
 
@@ -158,15 +149,15 @@ export function useAppoinmentController() {
     }
 
     try {
-      const message = await useAppoinmentRepo().deleteById(req.params.id);
+      const message = await useProductRepo().deleteById(req.params.id);
       res.status(200).json({ message });
     } catch (error) {
       res
         .status(500)
-        .json({ message: error.message || "Failed to delete appointment" });
+        .json({ message: error.message || "Failed to delete product" });
       return;
     }
   }
 
-  return { getAll, getById, add, updateById, updateStatusById, deleteById };
+  return { getAll, getById, add, updateById, updateStockById, deleteById };
 }

@@ -1,37 +1,29 @@
 import { ObjectId } from "mongodb";
 import { db } from "../index.js";
-import { schemaAppoinment, modelAppoinment, schemaAppoinmentStatusUpdateById } from "../models/appointment.model.js";
+import { schemaProduct, modelProduct, schemaProductUpdateStockById, schemaProductUpdateById } from "../models/product.model.js";
 import { paginate } from "../utils/paginate.util.js";
 import { logger } from "../utils/logger.util.js";
 
-export function useAppointmentRepo() {
-  const collection = db.collection("appointments");
+export function useProductRepo() {
+  const collection = db.collection("products");
 
   if (!db) {
     console.log("Mongodb client is required");
     logger.log({ level: "error", message: "Mongodb client is required" });
   }
 
-  async function createAppointmentIndexes() {
+  async function createProductIndexes() {
     try {
       await collection.createIndexes([
         { key: { status: 1 } },
         {
           key: {
-            fullName: "text",
-            email: "text",
-            phone: "text",
-            address: "text",
-            petName: "text",
-            petType: "text",
-            petBreed: "text",
-            petAge: "text",
-            services: "text",
-            date: "text",
-            time: "text",
+            name: "text",
+            stock: "text",
+            image: "text",
             status: "text",
           },
-          name: "appointmentTextSearch",
+          name: "productTextSearch",
         },
       ]);
       return "Indexes created successfully.";
@@ -74,7 +66,7 @@ export function useAppointmentRepo() {
       const length = await collection.countDocuments(query);
       return paginate({ items, page, limit, length });
     } catch (error) {
-      throw new Error("Failed to get appointments: " + error.message);
+      throw new Error("Failed to get products: " + error.message);
     }
   }
 
@@ -88,11 +80,11 @@ export function useAppointmentRepo() {
 
   async function add(value) {
     try {
-      value = modelAppoinment(value);
+      value = modelProduct(value);
       await collection.insertOne(value);
-      return "Successfully added appointment";
+      return "Successfully added product";
     } catch (error) {
-      throw new Error("Failed to add appointment: " + error.message);
+      throw new Error("Failed to add product: " + error.message);
     }
   }
 
@@ -103,7 +95,7 @@ export function useAppointmentRepo() {
       throw new Error("Invalid Id format");
     }
 
-    const { error } = schemaAppoinment.validate(value);
+    const { error } = schemaProductUpdateById.validate(value);
     if (error) {
       throw new Error(
         "Validation failed: " + error.details.map((d) => d.message).join(", ")
@@ -112,18 +104,18 @@ export function useAppointmentRepo() {
 
     try {
       await collection.updateOne({ _id: id }, { $set: value });
-      return "Successfully updated appointment";
+      return "Successfully updated product";
     } catch (error) { }
   }
 
-  async function updateStatusById(id, value) {
+  async function updateStockById(id, value) {
     try {
       id = new ObjectId(id);
     } catch (error) {
       throw new Error("Invalid Id format");
     }
 
-    const { error } = schemaAppoinmentStatusUpdateById.validate(value);
+    const { error } = schemaProductUpdateStockById.validate(value);
     if (error) {
       throw new Error(
         "Validation failed: " + error.details.map((d) => d.message).join(", ")
@@ -132,7 +124,7 @@ export function useAppointmentRepo() {
 
     try {
       await collection.updateOne({ _id: id }, { $set: value });
-      return "Successfully updated appointment status";
+      return "Successfully updated product stock";
     } catch (error) { }
   }
 
@@ -151,11 +143,11 @@ export function useAppointmentRepo() {
           deletedAt: new Date(),
         }
       });
-      return "Successfully deleted appointment";
+      return "Successfully deleted product";
     } catch (error) {
-      throw new Error("Failed to delete appointment: " + error.message);
+      throw new Error("Failed to delete product: " + error.message);
     }
   }
 
-  return { getAll, getById, add, updateById, updateStatusById, deleteById, createAppointmentIndexes };
+  return { getAll, getById, add, updateById, updateStockById, deleteById, createProductIndexes };
 }

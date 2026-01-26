@@ -40,7 +40,7 @@ export function useAuthService() {
       // If password matched, create session id
       const sid = uuidv4();
       // Store session id on redis database
-      await setCache(`sid:${sid}`, { userId: user._id.toString() }, 14400)
+      setCache(`sid:${sid}`, sid, 14400)
         .then(() => {
           logger.log({
             level: "info",
@@ -55,10 +55,7 @@ export function useAuthService() {
         });
 
       // Return user id
-      return {
-        sid,
-        user: { id: user._id },
-      };
+      return { sid, user: user._id };
     } catch (error) {
       throw error;
     }

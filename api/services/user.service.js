@@ -4,10 +4,19 @@ import { hashPassword } from "../utils/hash-password.util.js";
 import { logger } from "../utils/logger.util.js";
 
 export function useUserService() {
-  const { add } = useUserRepo();
+  const { add, getByEmail } = useUserRepo();
 
   async function addDefaultUser() {
     try {
+      const existingUser = await getByEmail(DEFAULT_USER_EMAIL);
+      if (existingUser) {
+        logger.log({
+          level: "info",
+          message: "Default user already exists.",
+        });
+        return;
+      }
+
       const hashedPassword = await hashPassword(DEFAULT_USER_PASSWORD);
       await add({
         firstName: "Iam",
@@ -15,6 +24,7 @@ export function useUserService() {
         password: hashedPassword,
         email: DEFAULT_USER_EMAIL,
         role: "admin",
+        status: "active",
       });
 
       logger.log({
@@ -22,7 +32,7 @@ export function useUserService() {
         message: "Successfully created default user.",
       });
     } catch (error) {
-      throw new Error("Failed to create default user.");
+      throw new Error(`Failed to create default user: ${error.message}`);
     }
   }
 

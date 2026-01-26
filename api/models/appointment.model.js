@@ -17,7 +17,8 @@ export const schemaAppoinment = Joi.object({
   createdAt: Joi.date().required(),
 });
 
-export const schemaAppoinmentStatusUpdate = Joi.object({
+export const schemaAppoinmentStatusUpdateById = Joi.object({
+  _id: Joi.string().hex().length(24).required(),
   status: Joi.string().trim().max(200).required(),
   updatedAt: Joi.date().required(),
 });

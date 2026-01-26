@@ -6,6 +6,7 @@ export const schemaUser = Joi.object({
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(4).required(),
+  role: Joi.string().optional().allow("", null),
   status: Joi.string().optional().allow("", null),
 });
 
@@ -24,6 +25,7 @@ export function modelUser(value) {
     lastName: value.lastName,
     email: value.email,
     password: value.password,
+    role: value.role ?? "admin",
     status: value.status ?? "active",
   };
 }
