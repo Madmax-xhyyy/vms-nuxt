@@ -179,7 +179,7 @@ function resetForm() {
     petType: null,
     petBreed: "",
     petAge: "",
-    services: "",
+    services: [],
     date: "",
     time: "",
   } as TAppointment;

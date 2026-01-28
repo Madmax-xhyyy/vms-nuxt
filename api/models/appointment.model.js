@@ -12,7 +12,7 @@ export const schemaAppoinment = Joi.object({
   petType: Joi.string().trim().min(1).max(200).required(),
   petBreed: Joi.string().trim().min(1).max(200).required(),
   petAge: Joi.string().trim().min(1).max(200).required(),
-  services: Joi.array().required(),
+  services: Joi.array().items(Joi.string().trim().min(1)).min(1).required(),
   date: Joi.date().required(),
   time: Joi.string().trim().min(1).max(200).required(),
   status: Joi.string().trim().max(200).optional().default("Pending"),

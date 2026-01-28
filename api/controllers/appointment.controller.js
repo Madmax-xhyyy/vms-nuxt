@@ -6,6 +6,14 @@ import { BadRequestError } from "../utils/error.util.js";
 import { logger } from "../utils/logger.util.js";
 
 export function useAppointmentController() {
+  const {
+    getAll: _getAll,
+    getAllPendingAppointments: _getAllPendingAppointments,
+    getById: _getById,
+    updateById: _updateById,
+    updateStatusById: _updateStatusById,
+    deleteById: _deleteById
+  } = useAppointmentRepo();
 
   const { add: _add } = useAppointmentService();
   // Get all
@@ -15,7 +23,7 @@ export function useAppointmentController() {
     const status = req.query.status;
     const search = req.query.search ?? "";
     try {
-      const items = await useAppointmentRepo().getAll({ page, limit, status, search });
+      const items = await _getAll({ page, limit, status, search });
       res.status(200).json(items);
       return;
     } catch (error) {
@@ -35,7 +43,7 @@ export function useAppointmentController() {
     const search = req.query.search ?? "";
 
     try {
-      const items = await useAppointmentRepo().getAllPendingAppointments({
+      const items = await _getAllPendingAppointments({
         page,
         limit,
         status,
@@ -52,28 +60,26 @@ export function useAppointmentController() {
     }
   }
 
-  async function getById(req, res) {
+  async function getById(req, res, next) {
+    const id = req.params.id;
+
     const validation = Joi.object({
-      id: Joi.string().hex().length(24).required(),
+      id: Joi.string().hex().required(),
     });
 
-    const { error } = validation.validate(req.params.id);
+    const { error } = validation.validate({ id });
+
     if (error) {
-      res
-        .status(400)
-        .json({ message: "Validation failed", errors: error.details });
+      next(new BadRequestError(error.message));
       return;
     }
 
     try {
-      const items = await useAppointmentRepo().getById(req.params.id);
-      res.status(200).json(items);
+      const appointment = await _getById(id);
+      res.json(appointment);
       return;
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: error.message || "Failed to get appointment by id" });
-      return;
+      next(error);
     }
   }
 

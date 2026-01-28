@@ -38,7 +38,7 @@
           hide-default-header
           hide-default-footer
           style="max-height: calc(100vh - (126px))"
-          @click:row="(_: any, { item }: any) => handleRowClick(item)"
+          @click:row="handleRowClick"
         >
           <template #item.createdAt="{ item }">
             {{ formatDate(item.createdAt) }}
@@ -49,17 +49,15 @@
   </v-row>
 
   <!--VIEW DIALOG -->
-  <!-- <v-dialog v-model="dialogView" max-width="700" persistent>
-    <JobPostForm
-      v-model:form="selectedJobPost"
+  <v-dialog v-model="dialogView" max-width="700" persistent>
+    <AppointmentPreview
+      v-model="form"
       mode="view"
-      title="Job Post Details"
+      title="Appointment Details"
       @close="dialogView = false"
-      @edit="handleDialogEdit()"
-      @delete="handleDialogDelete()"
-      @submit:update-status="handleStatusIntent"
+      @submit:update-status=""
     />
-  </v-dialog> -->
+  </v-dialog>
 
   <!-- STATUS CONFIRMATION -->
   <!-- <v-dialog v-model="dialogStatus" max-width="420" persistent>
@@ -87,6 +85,8 @@
   </v-dialog> -->
 </template>
 <script setup lang="ts">
+import AppointmentPreview from '~/components/AppointmentPreview.vue';
+
 definePageMeta({
   middleware: "auth",
   layout: "admin",
@@ -108,10 +108,12 @@ const route = useRoute();
 
 const dialogView = ref(false);
 
-const status = computed(() => (route.query.status as string) ?? "pending");
+
 const selectedAppointment = ref<TAppointment>({} as TAppointment);
 
-const { getAllPendingAppointments, getById } = useAppointment();
+const { appointment, getAllPendingAppointments, getById } = useAppointment();
+
+const form = ref(appointment);
 
 const {
   data: appointmentsData,
@@ -139,14 +141,9 @@ function formatDate(date: string) {
   if (!date) return "-";
   return new Date(date).toLocaleDateString("en-CA");
 }
-async function handleRowClick(item: Record<string, any>) {
-  try {
-    const data = (await getById(item._id)) as TAppointment;
-    selectedAppointment.value = data;
-    dialogView.value = true;
-  } catch (error) {
-    console.error("Error:", error);
-  }
+function handleRowClick(_: any, data: any) {
+  Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));
+  dialogView.value = true;
 }
 
 </script>

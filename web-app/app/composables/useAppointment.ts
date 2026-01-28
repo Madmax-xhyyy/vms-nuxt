@@ -8,7 +8,7 @@ export function useAppointment() {
     petType: null,
     petBreed: "",
     petAge: "",
-    services: "",
+    services: [],
     date: "",
     time: "",
   });
