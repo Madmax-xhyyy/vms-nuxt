@@ -18,58 +18,67 @@
     <v-card-text style="max-height: 75vh; overflow-y: auto" class="pa-4">
       <v-row dense>
         
-        <v-col cols="12" class="mb-4">
-          <div class="border rounded pa-3">
+        <v-col cols="12" class="mb-2">
+          <div class="border rounded pa-3 bg-grey-lighten-5">
             <div class="text-caption text-uppercase font-weight-bold text-grey mb-2">Client Information</div>
             <v-row no-gutters>
-              <v-col cols="12" class="mb-1">
+              <v-col cols="12" md="6">
                 <InputLabel title="Full Name:" /> {{ formModel.fullName }}
               </v-col>
-              <v-col cols="12" sm="6" class="mb-1">
+              <v-col cols="12" md="6">
                 <InputLabel title="Email:" /> {{ formModel.email }}
               </v-col>
-              <v-col cols="12" sm="6" class="mb-1">
+            </v-row>
+            <v-row no-gutters>
+              <v-col cols="12" md="6">
                 <InputLabel title="Phone:" /> {{ formModel.phone }}
               </v-col>
-              <v-col cols="12">
+              <v-col cols="12" md="6">
                 <InputLabel title="Address:" /> {{ formModel.address }}
               </v-col>
             </v-row>
           </div>
         </v-col>
 
-        <v-col cols="12" class="mb-4">
-          <div class="border rounded pa-3 bg-blue-grey-lighten-5">
+        <v-col cols="12" class="mb-2">
+          <div class="border rounded pa-3 bg-grey-lighten-5">
             <div class="text-caption text-uppercase font-weight-bold text-grey mb-2">Pet Information</div>
             <v-row no-gutters>
-              <v-col cols="12" sm="6" class="mb-1">
+              <v-col cols="12" md="6">
                 <InputLabel title="Pet Name:" /> {{ formModel.petName }}
               </v-col>
-              <v-col cols="12" sm="6" class="mb-1">
-                <InputLabel title="Type / Breed:" /> {{ formModel.petType }} ({{ formModel.petBreed }})
-              </v-col>
-              <v-col cols="12">
+              <v-col cols="12" md="6">
                 <InputLabel title="Age:" /> {{ formModel.petAge }}
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col cols="12" md="6">
+                <InputLabel title="Type:" /> {{ formModel.petType }}
+              </v-col>
+              <v-col cols="12" md="6">
+                <InputLabel title="Breed:" /> {{ formModel.petBreed }}
               </v-col>
             </v-row>
           </div>
         </v-col>
 
-        <v-col cols="12" class="mb-4">
-          <div class="border rounded pa-3">
+        <v-col cols="12" class="mb-2">
+          <div class="border rounded pa-3 bg-grey-lighten-5">
             <div class="text-caption text-uppercase font-weight-bold text-grey mb-2">Appointment Schedule</div>
             <v-row no-gutters>
-              <v-col cols="12" sm="6" class="mb-1">
-                <InputLabel title="Date:" /> {{ formatDate(formModel.date) }}
+              <v-col cols="12" md="6" class="mb-1">
+                <InputLabel title="Date:" /> {{ formatDate(formModel.date as string) }}
               </v-col>
-              <v-col cols="12" sm="6" class="mb-1">
-                <InputLabel title="Preferred Time:" /> {{ formModel.time }}
+              <v-col cols="12" md="6" class="mb-1">
+                <InputLabel title="Preferred Time:" /> {{ formatTime(formModel.time as string) }}
               </v-col>
+            </v-row>
+            <v-row no-gutters>
               <v-col cols="12">
                 <InputLabel title="Services:" />
                 <v-chip-group column>
                   <v-chip 
-                    v-for="service in formattedServices" 
+                      v-for="service in formattedServices" 
                     :key="service" 
                     size="x-small" 
                     variant="outlined"
@@ -119,15 +128,21 @@
             </template>
 
             <v-list class="pa-0">
-              <v-list-item @click="emits('approve')">
+              <v-list-item @click="emits('submit:update-status', 'Approved')">
                 <v-list-item-title class="text-subtitle-2">
                   Approve Request
                 </v-list-item-title>
               </v-list-item>
 
-              <v-list-item @click="emits('reject')" class="text-red">
+              <v-list-item @click="emits('submit:update-status', 'Rejected')" class="text-red">
                 <v-list-item-title class="text-subtitle-2">
                   Reject Request
+                </v-list-item-title>
+              </v-list-item>
+
+              <v-list-item @click="emits('delete')" class="text-red">
+                <v-list-item-title class="text-subtitle-2">
+                  Delete Request
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -139,15 +154,16 @@
 </template>
 
 <script setup lang="ts">
+import { type PropType, computed } from 'vue';
 
 const localProps = defineProps({
   mode: {
     type: String,
     default: "view",
-  },
+  }
 });
 
-const emits = defineEmits(["close", "approve", "reject"]);
+const emits = defineEmits(["close", "submit:update-status", "delete",]);
 
 // Helpers
 const statusColor = computed(() => {
@@ -161,17 +177,38 @@ const statusColor = computed(() => {
 });
 
 const formattedServices = computed(() => {
-  if (Array.isArray(formModel.value.services)) return formModel.value.services;
-  return formModel.value.services ? formModel.value.services.split(',') : []; 
+  const services = formModel.value.services;
+  if (Array.isArray(services)) return services;
+  if (typeof services === 'string') return (services as string).split(',');
+  return [] as string[];
 });
 
-const formatDate = (date: string) => {
+const formatDate = (date?: string | Date) => {
   if (!date) return 'Not set';
   return new Date(date).toLocaleDateString('en-US', {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+  });
+};
+
+const formatTime = (timeString?: string) => {
+  if (!timeString) return 'Not set';
+
+  const parts = timeString.split(':').map(Number);
+  if (parts.length < 2 || parts.some(isNaN)) return 'Invalid time';
+
+  const hours = parts[0] as number;
+  const minutes = parts[1] as number;
+  
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
   });
 };
 

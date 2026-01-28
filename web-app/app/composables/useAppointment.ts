@@ -71,6 +71,12 @@ export function useAppointment() {
     });
   }
 
+  function deleteById(id: string) {
+    return $fetch<TAppointment>(`/api/appointments/id/${id}`, {
+      method: "DELETE",
+    });
+  }
+
   return {
     appointment,
     petTypeOptions,
@@ -81,5 +87,6 @@ export function useAppointment() {
     getById,
     updateStatusById,
     getAllAppointments,
+    deleteById,
   };
 }

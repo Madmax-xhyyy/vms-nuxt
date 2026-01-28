@@ -34,14 +34,16 @@
           :headers="headers"
           :items="items"
           item-value="_id"
-          items-per-page="20"
-          hide-default-header
+          :items-per-page="10"
           hide-default-footer
           style="max-height: calc(100vh - (126px))"
           @click:row="handleRowClick"
         >
-          <template #item.createdAt="{ item }">
-            {{ formatDate(item.createdAt) }}
+          <template #item.date="{ item }">
+            {{ formatDate(item.date) }}
+          </template>
+          <template #item.time="{ item }">
+            {{ formatTime(item.time ) }}
           </template>
         </v-data-table>
       </v-card>
@@ -52,66 +54,66 @@
   <v-dialog v-model="dialogView" max-width="700" persistent>
     <AppointmentPreview
       v-model="form"
+      title="Appointment Request Details"
       mode="view"
-      title="Appointment Details"
       @close="dialogView = false"
-      @submit:update-status=""
+      @submit:update-status="handleStatusUpdate"
+      @delete="dialogDelete = true"
     />
   </v-dialog>
 
   <!-- STATUS CONFIRMATION -->
-  <!-- <v-dialog v-model="dialogStatus" max-width="420" persistent>
+  <v-dialog v-model="dialogStatus" max-width="420" persistent>
     <ConfirmationPrompt
       :title="statusDialogTitle"
-      :actionLabel="pendingActionVerb"
-      entityLabel="post"
+      :action="pendingActionVerb"
       :content="statusConfirmationContent"
-      @confirm="submitStatus()"
+      @confirm="submitStatus"
       @cancel="dialogStatus = false"
     />
-  </v-dialog> -->
+  </v-dialog>
 
   <!-- DELETE DIALOG -->
-  <!-- <v-dialog v-model="dialogDelete" width="450" persistent>
+  <v-dialog v-model="dialogDelete" width="450" persistent>
     <ConfirmationPrompt
-      title="Delete Job Post"
-      action="Delete Job Post"
-      content="Are you sure you want to delete this job post?"
+      title="Delete Appointment"
+      action="Delete"
+      content="Are you sure you want to delete this appointment?"
       @cancel="dialogDelete = false"
-      @confirm="submitDelete()"
+      @confirm="submitDelete"
       v-model:message="message"
       :disabled="disabledDelete"
     />
-  </v-dialog> -->
+  </v-dialog>
 </template>
 <script setup lang="ts">
-import AppointmentPreview from '~/components/AppointmentPreview.vue';
-
 definePageMeta({
   middleware: "auth",
   layout: "admin",
 });
 
 const headers = [
-  { title: "Date-time", value: "createdAt" },
+  { title: "Date", value: "date" },
+  { title: "Preferred Time", value: "time" },
   { title: "Full Name", value: "fullName" },
   { title: "Pet Name", value: "petName" },
-  { title: "Service ", value: "service" },
-  { title: "Status ", value: "status" },
 ];
 
 const items = ref<Array<Record<string, any>>>([]);
 const page = ref(1);
 const pages = ref(10);
 const pageRange = ref("-- - -- of --");
-const route = useRoute();
+const message = ref("");
 
 const dialogView = ref(false);
+const dialogStatus = ref(false);
+const dialogDelete = ref(false);
+const disabledDelete = ref(false);
+const pendingStatus = ref("");
 
 
-const selectedAppointment = ref<TAppointment>({} as TAppointment);
 
-const { appointment, getAllPendingAppointments, getById } = useAppointment();
+const { appointment, getAllPendingAppointments, getById, updateStatusById, deleteById } = useAppointment();
 
 const form = ref(appointment);
 
@@ -137,13 +139,74 @@ watchEffect(() => {
 
 const loadingAppointments = computed(() => statusAppointment.value === "pending");
 
-function formatDate(date: string) {
+function formatDate(date?: string | Date) {
   if (!date) return "-";
   return new Date(date).toLocaleDateString("en-CA");
 }
+
+const formatTime = (timeString?: string) => {
+  if (!timeString) return 'Not set';
+
+  const parts = timeString.split(':').map(Number);
+  if (parts.length < 2 || parts.some(isNaN)) return 'Invalid time';
+
+  const hours = parts[0] as number;
+  const minutes = parts[1] as number;
+
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date().setHours(hours, minutes, 0, 0));
+};
+
+
 function handleRowClick(_: any, data: any) {
   Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));
   dialogView.value = true;
 }
 
+
+function handleStatusUpdate(status: string) {
+  pendingStatus.value = status;
+  dialogStatus.value = true;
+}
+
+const statusDialogTitle = computed(() => {
+  return pendingStatus.value === "Approved" ? "Approve Appointment" : "Reject Appointment";
+});
+
+const pendingActionVerb = computed(() => {
+  return pendingStatus.value === "Approved" ? "Approve" : "Reject";
+});
+
+const statusConfirmationContent = computed(() => {
+  return pendingStatus.value === "Approved" ? "Are you sure you want to approve this appointment request?" : "Are you sure you want to reject this appointment request?";
+});
+
+async function submitStatus() {
+  if (!form.value._id || !pendingStatus.value) return;
+  
+  try {
+    await updateStatusById(form.value._id, pendingStatus.value);
+    dialogStatus.value = false;
+    dialogView.value = false;
+    await _getAllPendingAppointments();
+  } catch (error) {
+    console.error('Failed to update status:', error);
+  }
+}
+
+async function submitDelete() {
+  if (!form.value._id) return;
+  
+  try {
+    await deleteById(form.value._id);
+    dialogView.value = false;
+    dialogDelete.value = false;
+    await _getAllPendingAppointments();
+  } catch (error) {
+    console.error('Failed to delete:', error);
+  }
+}
 </script>
