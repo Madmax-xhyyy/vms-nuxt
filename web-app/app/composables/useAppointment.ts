@@ -47,8 +47,8 @@ export function useAppointment() {
     });
   }
 
-  function getAllAppointments({ page = 1, limit = 10, search = "", status = "Approved" } = {}) {
-    return $fetch<Record<string, any>>(`/api/appointments/status/${status}`, {
+  function getAllAppointments({ page = 1, limit = 10, search = "" } = {}) {
+    return $fetch<Record<string, any>>(`/api/appointments`, {
       method: "GET",
       query: {
         page,

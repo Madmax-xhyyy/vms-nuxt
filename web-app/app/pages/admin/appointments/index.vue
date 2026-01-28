@@ -1,13 +1,17 @@
 <template>
   <v-row>
     <!-- Toolbar -->
-    <v-col cols="12" class="mb-3">
-      <v-row align="center" justify="space-between">
-        <v-btn color="primary" variant="tonal" rounded @click="dialogAdd = true">
+    <v-col cols="12">
+      <v-row align="center">
+        <v-col cols="auto">
+          <v-btn color="primary" variant="tonal" @click="dialogAdd = true">
+          <v-icon start>mdi-plus</v-icon>
           New Appointment
         </v-btn>
-
-        <v-menu>
+        </v-col>
+        
+        <v-col cols="auto">
+          <v-menu>
           <template #activator="{ props }">
             <v-btn v-bind="props" rounded variant="outlined">
               {{ selectedStatus }}
@@ -19,51 +23,57 @@
             <v-list-item
               v-for="(status, i) in statuses"
               :key="i"
-              @click="filterStatus(status)"
+              @click="filterStatus(status.value)"
             >
-              <v-icon v-if="selectedStatus === status" size="16" class="mr-2">mdi-check</v-icon>
-              {{ status }}
+              <v-icon v-if="selectedStatus === status.value" size="16" class="mr-2">mdi-check</v-icon>
+              {{ status.text }}
             </v-list-item>
           </v-list>
         </v-menu>
+      </v-col>
       </v-row>
     </v-col>
 
     <!-- Table -->
     <v-col cols="12">
-      <v-card outlined rounded="lg">
-        <v-toolbar flat dense color="grey-lighten-4">
-          <v-btn icon @click="fetchAppointments">
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
+      <v-card
+        width="100%"
+        variant="outlined"
+        border="thin"
+        rounded="lg"
+        :loading="loadingAppointments"
+      >
+        <v-toolbar density="compact" color="grey-lighten-4">
+          <template #prepend>
+            <v-btn fab icon density="comfortable" @click="_getAllAppointments">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+          </template>
 
-          <v-spacer />
-
-          <div class="mr-2 text-caption gray">
-            {{ pageRange }}
-          </div>
-          <v-pagination v-model="page" :length="pages" />
+          <template #append>
+            <v-row no-gutters justify="end" align="center">
+              <span class="mr-2 text-caption text-font gray">
+                {{ pageRange }}
+              </span>
+              <local-pagination v-model="page" :length="pages" />
+            </v-row>
+          </template>
         </v-toolbar>
 
         <v-data-table
           :headers="headers"
-          :items="filteredAppointments"
+          :items="items"
+          item-value="_id"
           :items-per-page="10"
-          class="elevation-1"
-          @click:row="viewAppointment"
+          hide-default-footer
+          style="max-height: calc(100vh - (126px))"
+          @click:row="handleRowClick"
         >
           <template #item.date="{ item }">
             {{ formatDate(item.date) }}
           </template>
-
-          <template #item.status="{ item }">
-            <v-chip
-              :color="statusColor(item.status)"
-              variant="tonal"
-              small
-            >
-              {{ item.status }}
-            </v-chip>
+          <template #item.time="{ item }">
+            {{ formatTime(item.time)  }}
           </template>
         </v-data-table>
       </v-card>
@@ -71,11 +81,10 @@
   </v-row>
 
   <!-- Dialogs -->
-  <v-dialog v-model="dialogAdd" max-width="600">
+  <!-- <v-dialog v-model="dialogAdd" max-width="600">
     <v-card>
       <v-card-title>New Appointment</v-card-title>
       <v-card-text>
-        <!-- Your appointment form goes here -->
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -83,9 +92,9 @@
         <v-btn color="primary" @click="addAppointment">Add</v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </v-dialog> -->
 
-  <v-dialog v-model="dialogView" max-width="600">
+  <!-- <v-dialog v-model="dialogView" max-width="600">
     <v-card>
       <v-card-title>Appointment Details</v-card-title>
       <v-card-text>
@@ -99,7 +108,7 @@
         <v-btn text @click="dialogView = false">Close</v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
+  </v-dialog> -->
 </template>
 
 <script setup lang="ts">
@@ -108,89 +117,84 @@ definePageMeta({
   layout: "admin",
 });
 
-interface Appointment {
-  id: number;
-  owner: string;
-  pet: string;
-  date: string;
-  status: string;
-}
+const items = ref<Array<Record<string, any>>>([]);
+const page = ref(1);
+const pages = ref(10);
+const pageRange = ref("-- - -- of --");
+const message = ref("");
 
 const dialogAdd = ref(false);
 const dialogView = ref(false);
-const selectedAppointment = ref<Appointment | null>(null);
 
-const page = ref(1);
-const itemsPerPage = 10;
-
-const statuses = ["Pending", "Confirmed", "Done", "Cancelled"];
-const selectedStatus = ref("All");
-
-const appointments = ref<Appointment[]>([
-  { id: 1, owner: "John Doe", pet: "Rex", date: "2026-01-26", status: "Pending" },
-  { id: 2, owner: "Jane Smith", pet: "Fluffy", date: "2026-01-27", status: "Confirmed" },
-  { id: 3, owner: "Alice Lee", pet: "Barky", date: "2026-01-28", status: "Done" },
-  { id: 4, owner: "Bob King", pet: "Snow", date: "2026-01-29", status: "Cancelled" },
-]);
+const selectedStatus = ref("Approved");
 
 const headers = [
-  { title: "Owner", key: "owner" },
-  { title: "Pet", key: "pet" },
-  { title: "Date", key: "date" },
-  { title: "Status", key: "status" },
+  { title: "Date", value: "date" },
+  { title: "Preferred Time", value: "time" },
+  { title: "Full Name", value: "fullName" },
+  { title: "Pet Name", value: "petName" },
 ];
 
-const fetchAppointments = () => {
-  // Replace with API call
-  console.log("Fetch appointments...");
-};
-
-const addAppointment = () => {
-  // Replace with form submission logic
-  dialogAdd.value = false;
-};
-
-const viewAppointment = (item: Appointment) => {
-  selectedAppointment.value = item;
-  dialogView.value = true;
-};
+const statuses = [
+  {text: "Approved", value: "Approved"},
+  {text: "Done", value: "Done"},
+  {text: "Rejected", value: "Rejected"},
+];
 
 const filterStatus = (status: string) => {
   selectedStatus.value = status;
 };
-
-const filteredAppointments = computed(() => {
-  if (selectedStatus.value === "All") return appointments.value;
-  return appointments.value.filter((a) => a.status === selectedStatus.value);
-});
-
-const pageRange = computed(() => {
-  const start = (page.value - 1) * itemsPerPage + 1;
-  const end = Math.min(page.value * itemsPerPage, filteredAppointments.value.length);
-  return `${start}-${end} of ${filteredAppointments.value.length}`;
-});
-
-const pages = computed(() =>
-  Math.ceil(filteredAppointments.value.length / itemsPerPage)
-);
 
 const formatDate = (date: string | undefined) => {
   if (!date) return "";
   return new Date(date).toLocaleDateString();
 };
 
-const statusColor = (status: string | undefined) => {
-  switch (status) {
-    case "Pending":
-      return "orange";
-    case "Confirmed":
-      return "green";
-    case "Done":
-      return "blue";
-    case "Cancelled":
-      return "red";
-    default:
-      return "grey";
-  }
+const formatTime = (timeString?: string) => {
+  if (!timeString) return 'Not set';
+
+  const parts = timeString.split(':').map(Number);
+  if (parts.length < 2 || parts.some(isNaN)) return 'Invalid time';
+
+  const hours = parts[0] as number;
+  const minutes = parts[1] as number;
+
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(new Date().setHours(hours, minutes, 0, 0));
 };
+
+
+const { appointment, getAllAppointments, updateStatusById, deleteById } = useAppointment();
+
+const form = ref(appointment);
+
+const {
+  data: appointmentsData,
+  refresh: _getAllAppointments,
+  status: statusAppointment,
+} = await useLazyAsyncData(
+  `get-appointments-${page.value}`,
+  () => getAllAppointments({ page: page.value }),
+  {
+    watch: [page],
+  },
+);
+
+watchEffect(() => {
+  if (appointmentsData.value) {
+    items.value = appointmentsData.value.items;
+    pages.value = appointmentsData.value.pages;
+    pageRange.value = appointmentsData.value.pageRange;
+  }
+});
+
+const loadingAppointments = computed(() => statusAppointment.value === "pending");
+
+function handleRowClick(_: any, data: any) {
+  Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));
+  dialogView.value = true;
+}
 </script>
