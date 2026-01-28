@@ -1,8 +1,13 @@
 import Joi from "joi";
 import { schemaAppoinment, schemaAppoinmentStatusUpdateById } from "../models/appointment.model.js";
 import { useAppointmentRepo } from "../repositories/appointment.repository.js";
+import { useAppointmentService } from "../services/appointment.service.js";
+import { BadRequestError } from "../utils/error.util.js";
+import { logger } from "../utils/logger.util.js";
 
 export function useAppointmentController() {
+
+  const { add: _add } = useAppointmentService();
   // Get all
   async function getAll(req, res) {
     const page = parseInt(req.query.page) || 1;
@@ -24,16 +29,25 @@ export function useAppointmentController() {
   async function getAllPendingAppointments(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const status = req.params.status;
+
+    const status = "Pending";
+
     const search = req.query.search ?? "";
+
     try {
-      const items = await useAppointmentRepo().getAllPendingAppointments({ page, limit, status, search });
+      const items = await useAppointmentRepo().getAllPendingAppointments({
+        page,
+        limit,
+        status,
+        search
+      });
+
       res.status(200).json(items);
       return;
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: error.message || "Failed to get pending appointments" });
+      res.status(500).json({
+        message: error.message || "Failed to get pending appointments"
+      });
       return;
     }
   }
@@ -63,25 +77,23 @@ export function useAppointmentController() {
     }
   }
 
-  async function add(req, res) {
+  async function add(req, res, next) {
     const value = req.body;
+
     const { error } = schemaAppoinment.validate(value);
+
     if (error) {
-      res
-        .status(400)
-        .json({ message: "Validation failed", errors: error.details });
+      next(new BadRequestError(error.message));
+      logger.info(`Controller: ${error.message}`);
       return;
     }
 
     try {
-      const message = await useAppointmentRepo().add(value);
-      res.status(200).json({ message });
+      const message = await _add(value);
+      res.json({ message });
       return;
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: error.message || "Failed to add appointment" });
-      return;
+      next(error);
     }
   }
 

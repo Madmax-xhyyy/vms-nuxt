@@ -65,7 +65,7 @@
 
       <template #append>
         <div class="pa-2">
-          <v-btn block color="red" variant="tonal">
+          <v-btn block variant="tonal" :to="{ name: 'admin-logout' }">
             Logout
           </v-btn>
         </div>

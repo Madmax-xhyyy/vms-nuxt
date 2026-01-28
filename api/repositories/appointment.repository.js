@@ -82,7 +82,7 @@ export function useAppointmentRepo() {
   async function getAllPendingAppointments({
     page = 1,
     limit = 10,
-    status = "pending",
+    status = "Pending",
     search = "",
   } = {}) {
     page = page > 0 ? page - 1 : page;

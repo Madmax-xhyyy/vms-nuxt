@@ -12,7 +12,7 @@ export default function useAppointmentRoute() {
   router.get("/id/:id", requireAuth, useAppointmentController().getById);
 
   // Add new
-  router.post("/", requireAuth, useAppointmentController().add);
+  router.post("/", useAppointmentController().add);
 
   // Update by id
   router.patch("/id/:id", requireAuth, useAppointmentController().updateById);

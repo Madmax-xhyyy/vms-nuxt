@@ -1,8 +1,9 @@
 import Joi from "joi";
+import { ObjectId } from "mongodb";
 
 export const schemaAppoinment = Joi.object({
-  _id: Joi.string().hex().length(24).required(),
-  code: Joi.string().trim().min(1).max(200).required(),
+  _id: Joi.any().optional(),
+  code: Joi.string().trim().min(1).max(200).optional(),
   fullName: Joi.string().trim().min(1).max(200).required(),
   email: Joi.string().trim().min(1).max(200).required(),
   phone: Joi.string().trim().min(1).max(200).required(),
@@ -14,12 +15,14 @@ export const schemaAppoinment = Joi.object({
   services: Joi.array().required(),
   date: Joi.date().required(),
   time: Joi.string().trim().min(1).max(200).required(),
-  status: Joi.string().trim().max(200).required(),
-  createdAt: Joi.date().required(),
+  status: Joi.string().trim().max(200).optional().default("Pending"),
+  createdAt: Joi.date().optional(),
+  updatedAt: Joi.date().allow("").optional(),
+  deletedAt: Joi.date().allow("").optional(),
 });
 
 export const schemaAppoinmentStatusUpdateById = Joi.object({
-  _id: Joi.string().hex().length(24).required(),
+  _id: Joi.any().required(),
   status: Joi.string().trim().max(200).required(),
   updatedAt: Joi.date().required(),
 });
@@ -35,7 +38,7 @@ export function modelAppoinment(value) {
   }
 
   return {
-    _id: value._id,
+    _id: value._id ? new ObjectId(value._id) : new ObjectId(),
     code: value.code,
     fullName: value.fullName,
     email: value.email,
@@ -50,7 +53,7 @@ export function modelAppoinment(value) {
     time: value.time,
     status: value.status,
     createdAt: value.createdAt ?? new Date(),
-    updatedAt: value.updatedAt,
-    deletedAt: value.deletedAt,
+    updatedAt: value.updatedAt ?? "",
+    deletedAt: value.deletedAt ?? "",
   };
 }

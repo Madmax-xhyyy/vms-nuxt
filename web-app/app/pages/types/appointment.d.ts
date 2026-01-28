@@ -6,7 +6,7 @@ declare type TAppointment = {
   phone: string;
   address: string;
   petName: string;
-  petType: string;
+  petType: PetType;
   petBreed: string;
   petAge: string;
   services: string;
@@ -17,3 +17,12 @@ declare type TAppointment = {
   updatedAt?: Date;
   deletedAt?: Date;
 };
+
+type PetType =
+  | "Dog"
+  | "Cat"
+  | "Rabbit"
+  | "Bird"
+  | "Guinea Pig"
+  | "Other"
+  | null

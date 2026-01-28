@@ -5,14 +5,36 @@ export function useAppointment() {
     phone: "",
     address: "",
     petName: "",
-    petType: "",
+    petType: null,
     petBreed: "",
     petAge: "",
     services: "",
     date: "",
     time: "",
-    status: "",
   });
+
+  const petTypeOptions = {
+    Dog: ["Labrador Retriever", "Golden Retriever", "Beagle", "Pomeranian", "Shih Tzu", "Chihuahua", "French Bulldog", "Pug", "Dachshund"],
+    Cat: ["Persian", "Siamese", "Maine Coon", "Ragdoll", "British Shorthair", "Scottish Fold", "Sphynx", "Bengal", "American Shorthair"],
+    Rabbit: ["Holland Lop", "Netherland Dwarf"],
+    Bird: ["Parakeet", "Cockatiel", "Lovebird"],
+    "Guinea Pig": ["Abyssinian", "American"],
+    Other: [] as string[]
+  };
+
+  const services = [
+    'General Check-Up', 'Vaccination', 'Deworming', 'Grooming', 'Consultation',
+    'Surgery', 'Dental Care', 'Laboratory Tests', 'Emergency Care',
+    'Spay / Neuter', 'Parasite Control', 'Pet Boarding', 'Health Certificate'
+  ];
+
+
+  const petTypeKeys = Object.keys(petTypeOptions) as (keyof typeof petTypeOptions)[];
+
+  const petBreeds = (type: PetType) => {
+    if (!type) return [];
+    return petTypeOptions[type];
+  };
 
   function getAllPendingAppointments({ page = 1, limit = 10, search = "" } = {}) {
     return $fetch<Record<string, any>>(`/api/appointments/status/pending`, {
@@ -21,7 +43,7 @@ export function useAppointment() {
         page,
         limit,
         search,
-        status: "pending",
+        status: "Pending",
       },
     });
   }
@@ -51,6 +73,10 @@ export function useAppointment() {
 
   return {
     appointment,
+    petTypeOptions,
+    petTypeKeys,
+    petBreeds,
+    services,
     getAllPendingAppointments,
     getById,
     updateStatusById,
