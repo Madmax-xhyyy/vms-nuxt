@@ -113,7 +113,7 @@ const pendingStatus = ref("");
 
 
 
-const { appointment, getAllPendingAppointments, getById, updateStatusById, deleteById } = useAppointment();
+const { appointment, getAllPendingAppointments, updateStatusById, deleteById } = useAppointment();
 
 const form = ref(appointment);
 
@@ -167,7 +167,7 @@ function handleRowClick(_: any, data: any) {
 }
 
 
-function handleStatusUpdate(status: string) {
+function handleStatusUpdate(status: 'Approved' | 'Rejected') {
   pendingStatus.value = status;
   dialogStatus.value = true;
 }
@@ -189,6 +189,7 @@ async function submitStatus() {
   
   try {
     await updateStatusById(form.value._id, pendingStatus.value);
+    pendingStatus.value = "";
     dialogStatus.value = false;
     dialogView.value = false;
     await _getAllPendingAppointments();

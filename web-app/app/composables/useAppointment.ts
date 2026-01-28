@@ -43,7 +43,6 @@ export function useAppointment() {
         page,
         limit,
         search,
-        status: "Pending",
       },
     });
   }

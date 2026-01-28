@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { schemaAppoinment, schemaAppoinmentStatusUpdateById } from "../models/appointment.model.js";
+import { schemaAppoinment } from "../models/appointment.model.js";
 import { useAppointmentRepo } from "../repositories/appointment.repository.js";
 import { useAppointmentService } from "../services/appointment.service.js";
 import { BadRequestError } from "../utils/error.util.js";
@@ -156,17 +156,34 @@ export function useAppointmentController() {
   }
 
   async function updateStatusById(req, res) {
-    try {
-      const message = await useAppointmentRepo().updateStatusById(
-        req.params.id,
-        { status: req.params.status, updatedAt: new Date() }
-      );
-      res.status(200).json({ message });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: error.message || "Failed to update appointment status" });
+    const status = req.params.status;
+
+    const validation = Joi.object({
+      status: Joi.string()
+        .valid("Approved", "Done", "Rejected")
+        .required(),
+    });
+
+    const { error } = validation.validate({ status });
+    if (error) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: error.details,
+      });
     }
+
+    try {
+      const message = await _updateStatusById(
+        req.params.id,
+        status,
+      );
+      res.status(200).json({ message, status });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message || "Failed to update appointment status",
+      });
+    }
+
   }
 
   async function deleteById(req, res) {

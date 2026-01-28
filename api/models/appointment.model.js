@@ -22,9 +22,7 @@ export const schemaAppoinment = Joi.object({
 });
 
 export const schemaAppoinmentStatusUpdateById = Joi.object({
-  _id: Joi.any().required(),
-  status: Joi.string().trim().max(200).required(),
-  updatedAt: Joi.date().required(),
+  status: Joi.string().trim().max(200).required().valid("Approved", "Done", "Rejected"),
 });
 
 export function modelAppoinment(value) {

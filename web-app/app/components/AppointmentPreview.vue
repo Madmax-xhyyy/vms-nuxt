@@ -163,15 +163,16 @@ const localProps = defineProps({
   }
 });
 
+
 const emits = defineEmits(["close", "submit:update-status", "delete",]);
 
 // Helpers
 const statusColor = computed(() => {
-  const status = formModel.value.status?.toLowerCase();
-  switch (status) {
-    case 'pending': return 'warning';
-    case 'confirmed': return 'success';
-    case 'cancelled': return 'error';
+  switch (formModel.value.status) {
+    case 'Pending': return 'warning';
+    case 'Approved': return 'success';
+    case 'Done': return 'info';
+    case 'Rejected': return 'error';
     default: return 'grey';
   }
 });

@@ -159,14 +159,10 @@ export function useAppointmentRepo() {
     }
   }
 
-  async function updateStatusById(id, value) {
-    try {
-      id = new ObjectId(id);
-    } catch (error) {
-      throw new Error("Invalid Id format");
-    }
-
-    const { error } = schemaAppoinmentStatusUpdateById.validate(value);
+  async function updateStatusById(id, status) {
+    const { error } = schemaAppoinmentStatusUpdateById.validate({
+      status: status,
+    });
     if (error) {
       throw new Error(
         "Validation failed: " + error.details.map((d) => d.message).join(", ")
@@ -174,7 +170,12 @@ export function useAppointmentRepo() {
     }
 
     try {
-      await collection.updateOne({ _id: id }, { $set: value });
+      await collection.updateOne({ _id: new ObjectId(id) }, {
+        $set: {
+          status: status,
+          updatedAt: new Date(),
+        },
+      });
       return "Successfully updated appointment status";
     } catch (error) {
       logger.log({ level: "error", message: "Failed to update appointment status: " + error.message });
@@ -193,7 +194,6 @@ export function useAppointmentRepo() {
       await collection.updateOne({ _id: id }, {
         $set: {
           status: "deleted",
-          updatedAt: new Date(),
           deletedAt: new Date(),
         }
       });
