@@ -122,7 +122,7 @@ const {
   refresh: _getAllPendingAppointments,
   status: statusAppointment,
 } = await useLazyAsyncData(
-  `get-appointments-${page.value}`,
+  `get-all-pending-appointments-${page.value}`,
   () => getAllPendingAppointments({ page: page.value }),
   {
     watch: [page],

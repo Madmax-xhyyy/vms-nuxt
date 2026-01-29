@@ -1,36 +1,59 @@
 <template>
-  <v-row>
+  <v-row no-gutters>
     <!-- Toolbar -->
-    <v-col cols="12">
+    <v-col cols="12"  class="mb-2">
       <v-row align="center">
-        <v-col cols="auto">
-          <v-btn color="primary" variant="tonal" @click="dialogAdd = true">
-          <v-icon start>mdi-plus</v-icon>
-          New Appointment
-        </v-btn>
+        <v-col cols="6" class="d-flex align-center">
+          <h3 class="mr-2">Appointments</h3>
+          <v-text-field
+            v-model="search"
+            label="Search"
+            variant="outlined"
+            density="compact"
+            hide-details
+            clearable
+          />
         </v-col>
         
-        <v-col cols="auto">
-          <v-menu>
+        <v-col cols="6">
+          <v-btn 
+          color="primary" 
+          variant="tonal" 
+          class="mr-2"
+          @click="handleDialogAdd()"
+        >
+          <v-icon start>mdi-plus</v-icon>
+          Appointment
+        </v-btn>
+        
+        <v-menu>
           <template #activator="{ props }">
-            <v-btn v-bind="props" rounded variant="outlined">
-              {{ selectedStatus }}
+            <v-btn 
+            v-bind="props" 
+            variant="tonal"
+            class="mr-2"
+            >
+              {{ status }}
               <v-icon right>mdi-menu-down</v-icon>
             </v-btn>
           </template>
 
-          <v-list>
+          <v-list class="pa-0" max-height="250px">
             <v-list-item
-              v-for="(status, i) in statuses"
+              v-for="(item, i) in statuses"
               :key="i"
-              @click="filterStatus(status.value)"
+              :value="i"
+              @click="navigateQueryStatus(item.value)"
             >
-              <v-icon v-if="selectedStatus === status.value" size="16" class="mr-2">mdi-check</v-icon>
-              {{ status.text }}
+              <v-icon size="16" class="mr-2">
+                {{ status === item.value ? "mdi-check-bold" : "" }}
+              </v-icon>
+              {{ item.text }}
             </v-list-item>
           </v-list>
         </v-menu>
-      </v-col>
+        </v-col>
+        
       </v-row>
     </v-col>
 
@@ -80,35 +103,50 @@
     </v-col>
   </v-row>
 
-  <!-- Dialogs -->
-  <!-- <v-dialog v-model="dialogAdd" max-width="600">
-    <v-card>
-      <v-card-title>New Appointment</v-card-title>
-      <v-card-text>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn text @click="dialogAdd = false">Cancel</v-btn>
-        <v-btn color="primary" @click="addAppointment">Add</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog> -->
+  <!--ADD DIALOG -->
+  <v-dialog v-model="dialogAdd" max-width="700" persistent>
+    <AppointmentForm
+      v-model="form"
+      @submit:add="submitAdd()"
+      @cancel="dialogAdd = false"
+    />
+  </v-dialog>
 
-  <!-- <v-dialog v-model="dialogView" max-width="600">
-    <v-card>
-      <v-card-title>Appointment Details</v-card-title>
-      <v-card-text>
-        <div><strong>Owner:</strong> {{ selectedAppointment?.owner }}</div>
-        <div><strong>Pet:</strong> {{ selectedAppointment?.pet }}</div>
-        <div><strong>Date:</strong> {{ formatDate(selectedAppointment?.date) }}</div>
-        <div><strong>Status:</strong> {{ selectedAppointment?.status }}</div>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn text @click="dialogView = false">Close</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog> -->
+  <!--VIEW DIALOG -->
+  <v-dialog v-model="dialogView" max-width="700" persistent>
+    <AppointmentPreview
+      v-model="form"
+      title="Appointment Request Details"
+      mode="view"
+      @close="dialogView = false"
+      @submit:update-status="handleStatusUpdate"
+      @delete="dialogDelete = true"
+    />
+  </v-dialog>
+
+  <!-- STATUS CONFIRMATION -->
+  <v-dialog v-model="dialogStatus" max-width="420" persistent>
+    <ConfirmationPrompt
+      :title="statusDialogTitle"
+      :action="pendingActionVerb"
+      :content="statusConfirmationContent"
+      @confirm="submitStatus()"
+      @cancel="dialogStatus = false"
+    />
+  </v-dialog>
+
+  <!-- DELETE DIALOG -->
+  <v-dialog v-model="dialogDelete" width="450" persistent>
+    <ConfirmationPrompt
+      title="Delete Appointment"
+      action="Delete"
+      content="Are you sure you want to delete this appointment?"
+      @cancel="dialogDelete = false"
+      @confirm="submitDelete"
+      v-model:message="message"
+      :disabled="disabledDelete"
+    />
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -117,6 +155,7 @@ definePageMeta({
   layout: "admin",
 });
 
+const route = useRoute();
 const items = ref<Array<Record<string, any>>>([]);
 const page = ref(1);
 const pages = ref(10);
@@ -125,8 +164,10 @@ const message = ref("");
 
 const dialogAdd = ref(false);
 const dialogView = ref(false);
-
-const selectedStatus = ref("Approved");
+const dialogStatus = ref(false);
+const dialogDelete = ref(false);
+const disabledDelete = ref(false);
+const pendingStatus = ref("");
 
 const headers = [
   { title: "Date", value: "date" },
@@ -141,9 +182,7 @@ const statuses = [
   {text: "Rejected", value: "Rejected"},
 ];
 
-const filterStatus = (status: string) => {
-  selectedStatus.value = status;
-};
+const status = computed(() => (route.query.status as string) ?? "Approved");
 
 const formatDate = (date: string | undefined) => {
   if (!date) return "";
@@ -166,20 +205,18 @@ const formatTime = (timeString?: string) => {
   }).format(new Date().setHours(hours, minutes, 0, 0));
 };
 
-
 const { appointment, getAllAppointments, updateStatusById, deleteById } = useAppointment();
 
 const form = ref(appointment);
-
 const {
   data: appointmentsData,
   refresh: _getAllAppointments,
   status: statusAppointment,
 } = await useLazyAsyncData(
-  `get-appointments-${page.value}`,
-  () => getAllAppointments({ page: page.value }),
+  `get-all-appointments-${status.value}-${page.value}`,
+  () => getAllAppointments({ page: page.value, status: status.value }),
   {
-    watch: [page],
+    watch: [page, status],
   },
 );
 
@@ -193,8 +230,101 @@ watchEffect(() => {
 
 const loadingAppointments = computed(() => statusAppointment.value === "pending");
 
+const search = ref("");
+
+function navigateQueryStatus(statusValue: string) {
+  navigateTo({
+    name: "admin-appointments",
+    query: { status: statusValue },
+  });
+};
+
+function resetForm() {
+  form.value = {
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    petName: "",
+    petType: null,
+    petBreed: "",
+    petAge: "",
+    services: [],
+    date: "",
+    time: "",
+  } as TAppointment;
+}
+
+function handleDialogAdd() {
+  resetForm();
+  dialogAdd.value = true;
+}
+
+async function submitAdd() {
+  try {
+    const res = await $fetch<AddAppointmentResponse>("/api/appointments", {
+      method: "POST",
+      body: {
+        ...form.value,
+      },
+    });
+    dialogAdd.value = false;  
+    resetForm();
+    await _getAllAppointments();
+  } catch (error: any) {
+    console.error("Error:", error);
+    message.value =
+      error.response._data.message ||
+      "An error occurred while adding the appointment.";
+  }
+}
+
+function handleStatusUpdate(status: 'Approved' | 'Done') {
+  pendingStatus.value = status;
+  dialogStatus.value = true;
+}
+
+const statusDialogTitle = computed(() => {
+  return pendingStatus.value === "Done" ? "Complete Appointment": "Approve Appointment";
+});
+
+const pendingActionVerb = computed(() => {
+  return pendingStatus.value === "Done" ? "Mark as Done" : "Approve";
+});
+
+const statusConfirmationContent = computed(() => {
+  return `Are you sure you want to ${pendingActionVerb.value.toLowerCase()} this appointment?`;
+});
+
+async function submitStatus() {
+  if (!form.value._id) return;
+  
+  try {
+    await updateStatusById(form.value._id, pendingStatus.value);
+    dialogView.value = false;
+    dialogStatus.value = false;
+    await _getAllAppointments();
+  } catch (error) {
+    console.error('Failed to update status:', error);
+  }
+}
+
+async function submitDelete() {
+  if (!form.value._id) return;
+  
+  try {
+    await deleteById(form.value._id);
+    dialogView.value = false;
+    dialogDelete.value = false;
+    await _getAllAppointments();
+  } catch (error) {
+    console.error('Failed to delete:', error);
+  }
+}
+
 function handleRowClick(_: any, data: any) {
   Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));
   dialogView.value = true;
-}
+};
+
 </script>

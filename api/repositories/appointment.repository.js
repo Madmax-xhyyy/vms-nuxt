@@ -49,7 +49,10 @@ export function useAppointmentRepo() {
   } = {}) {
     page = page > 0 ? page - 1 : page;
 
-    const query = { status };
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
 
     if (search) {
       query.$text = { $search: search };

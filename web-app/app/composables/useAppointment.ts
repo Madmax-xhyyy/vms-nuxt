@@ -47,12 +47,13 @@ export function useAppointment() {
     });
   }
 
-  function getAllAppointments({ page = 1, limit = 10, search = "" } = {}) {
+  function getAllAppointments({ page = 1, limit = 10, status = "", search = "" } = {}) {
     return $fetch<Record<string, any>>(`/api/appointments`, {
       method: "GET",
       query: {
         page,
         limit,
+        status,
         search,
       },
     });

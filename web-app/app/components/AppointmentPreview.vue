@@ -128,21 +128,46 @@
             </template>
 
             <v-list class="pa-0">
-              <v-list-item @click="emits('submit:update-status', 'Approved')">
-                <v-list-item-title class="text-subtitle-2">
-                  Approve Request
-                </v-list-item-title>
-              </v-list-item>
+              <!-- PENDING -->
+              <template v-if="formModel.status === 'Pending'">
+                <v-list-item
+                  @click="emits('submit:update-status', 'Approved')"
+                >
+                  <v-list-item-title class="text-subtitle-2">
+                    Approve Request
+                  </v-list-item-title>
+                </v-list-item>
 
-              <v-list-item @click="emits('submit:update-status', 'Rejected')" class="text-red">
-                <v-list-item-title class="text-subtitle-2">
-                  Reject Request
-                </v-list-item-title>
-              </v-list-item>
+                <v-list-item
+                  @click="emits('submit:update-status', 'Rejected')"
+                  class="text-red"
+                >
+                  <v-list-item-title class="text-subtitle-2">
+                    Reject Request
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
 
-              <v-list-item @click="emits('delete')" class="text-red">
+              <!-- APPROVED -->
+              <template v-else-if="formModel.status === 'Approved'">
+                <v-list-item
+                  @click="emits('submit:update-status', 'Done')"
+                >
+                  <v-list-item-title class="text-subtitle-2">
+                    Mark as Done
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+
+              <!-- OPTIONAL DELETE -->
+              <v-divider />
+
+              <v-list-item
+                @click="emits('delete')"
+                class="text-red"
+              >
                 <v-list-item-title class="text-subtitle-2">
-                  Delete Request
+                  Delete
                 </v-list-item-title>
               </v-list-item>
             </v-list>
