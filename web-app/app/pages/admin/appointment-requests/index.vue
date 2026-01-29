@@ -1,8 +1,10 @@
 <template>
    <v-row no-gutters>
-    <v-col cols="12">
+    <v-col cols="12" class="mb-2">
       <v-row no-gutters>
-        <h3>Appointment Requests</h3>
+        <v-col cols="12" class="text-h6 text-md-h5 font-weight-bold">
+          Appointment Requests
+        </v-col>
       </v-row>
     </v-col>
     <v-col cols="12">
@@ -19,7 +21,7 @@
               <v-icon>mdi-refresh</v-icon>
             </v-btn>
           </template>
-
+          
           <template #append>
             <v-row no-gutters justify="end" align="center">
               <span class="mr-2 text-caption text-font gray">
@@ -36,7 +38,7 @@
           item-value="_id"
           :items-per-page="10"
           hide-default-footer
-          style="max-height: calc(100vh - (126px))"
+          style="max-height: calc(100vh - (190px))"
           @click:row="handleRowClick"
         >
           <template #item.date="{ item }">
@@ -139,9 +141,12 @@ watchEffect(() => {
 
 const loadingAppointments = computed(() => statusAppointment.value === "pending");
 
-function formatDate(date?: string | Date) {
-  if (!date) return "-";
-  return new Date(date).toLocaleDateString("en-CA");
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 const formatTime = (timeString?: string) => {

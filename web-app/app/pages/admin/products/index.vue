@@ -146,7 +146,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="save">Save</v-btn>
+          <v-btn color="primary" @click="">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -218,15 +218,15 @@ function openEdit(item: any) {
   dialog.value = true;
 }
 
-function save() {
-  if (isEdit.value) {
-    const i = foods.value.findIndex((f) => f.id === form.id);
-    foods.value[i] = { ...form };
-  } else {
-    foods.value.push({ ...form, id: Date.now() });
-  }
-  dialog.value = false;
-}
+// function save() {
+//   if (isEdit.value) {
+//     const i = foods.value.findIndex((f) => f.id === form.id);
+//     foods.value[i] = { ...form };
+//   } else {
+//     foods.value.push({ ...form, id: Date.now() });
+//   }
+//   dialog.value = false;
+// }
 
 function remove(item: any) {
   foods.value = foods.value.filter((f) => f.id !== item.id);

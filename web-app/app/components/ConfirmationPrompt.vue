@@ -48,7 +48,7 @@
             tile
             block
             size="48"
-            color="black"
+            color="primary"
             variant="flat"
             class="text-none"
             @click="emits('confirm')"

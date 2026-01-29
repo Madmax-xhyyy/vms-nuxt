@@ -112,12 +112,12 @@
         </v-col>
 
         <v-col cols="6">
-          <v-menu>
+          <v-menu location="top">
             <template #activator="{ props }">
               <v-btn
                 block
                 variant="flat"
-                color="black"
+                color="primary"
                 class="text-none"
                 height="48"
                 v-bind="props"
@@ -159,12 +159,11 @@
                 </v-list-item>
               </template>
 
-              <!-- OPTIONAL DELETE -->
               <v-divider />
 
               <v-list-item
                 @click="emits('delete')"
-                class="text-red"
+                class="bg-red-lighten-1"
               >
                 <v-list-item-title class="text-subtitle-2">
                   Delete

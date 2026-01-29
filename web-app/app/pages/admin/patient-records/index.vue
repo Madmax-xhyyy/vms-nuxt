@@ -1,137 +1,72 @@
 <template>
-  <v-container fluid>
-    <!-- HEADER -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="6">
-        <div class="text-h5 font-weight-bold">Patient Records</div>
-        <div class="text-caption text-grey">
-          List of pets with completed visits
-        </div>
-      </v-col>
-    </v-row>
+  <v-row no-gutters>
+    <!-- PAGE HEADER -->
+    <v-col cols="12" class="mb-4">
+      <v-row align="center">
+        <v-col cols="12" sm="8">
+          <h2 class="text-h6 text-md-h5 font-weight-bold">Patient Records</h2>
+        </v-col>
 
-    <!-- SEARCH -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="4">
-        <v-text-field
-          v-model="search"
-          label="Search pet or owner"
-          variant="outlined"
-          density="comfortable"
-          clearable
-        />
-      </v-col>
-    </v-row>
+        <v-col cols="12" sm="4">
+          <v-text-field
+            v-model="search"
+            label="Search"
+            variant="outlined"
+            density="compact"
+            class="w-100"
+            hide-details
+          />
+        </v-col>
+      </v-row>
+    </v-col>
 
-    <!-- TABLE -->
-    <v-card variant="outlined">
-      <v-table density="comfortable">
-        <thead>
-          <tr>
-            <th>Pet Name</th>
-            <th>Pet Type</th>
-            <th>Breed</th>
-            <th>Owner</th>
-            <th>Last Visit</th>
-            <th width="120">Actions</th>
-          </tr>
-        </thead>
+    <!-- TABLE (UNCHANGED STRUCTURE) -->
+    <v-col cols="12">
+      <v-card
+        width="100%"
+        variant="outlined"
+        border="thin"
+        rounded="lg"
+        :loading="loading"
+      >
+        <v-toolbar density="compact" color="grey-lighten-4">
+          <template #prepend>
+            <v-btn fab icon density="comfortable" @click="">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+            
+          </template>
 
-        <tbody>
-          <tr v-for="patient in filteredPatients" :key="patient.id">
-            <td class="font-weight-medium">
-              {{ patient.petName }}
-            </td>
+          <template #append>
+            <v-row no-gutters justify="end" align="center">
+              <span class="mr-2 text-caption text-grey">
+                {{ pageRange }}
+              </span>
+              <local-pagination v-model="page" :length="pages" />
+            </v-row>
+          </template>
+        </v-toolbar>
 
-            <td>{{ patient.petType }}</td>
-            <td>{{ patient.petBreed }}</td>
-            <td>{{ patient.ownerName }}</td>
-            <td>{{ formatDate(patient.lastVisit) }}</td>
+        <v-data-table
+          :headers="headers"
+          :items="pagedItems"
+          item-value="id"
+          :items-per-page="itemsPerPage"
+          hide-default-footer
+          style="max-height: calc(100vh - 200px)"
+        >
+          <template #item.lastVisit="{ item }">
+            {{ formatDate(item.lastVisit) }}
+          </template>
 
-            <td>
-              <v-btn
-                size="small"
-                variant="outlined"
-                @click="view(patient)"
-              >
-                View Record
-              </v-btn>
-            </td>
-          </tr>
-
-          <tr v-if="!filteredPatients.length">
-            <td colspan="6" class="text-center text-grey pa-6">
-              No patient records found
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-    </v-card>
-
-    <!-- VIEW RECORD DIALOG -->
-    <v-dialog v-model="dialog" max-width="600">
-      <v-card>
-        <v-card-title class="font-weight-bold">
-          Patient Record
-        </v-card-title>
-
-        <v-divider />
-
-        <v-card-text>
-          <v-row dense>
-            <v-col cols="6">
-              <strong>Pet Name:</strong> {{ selected.petName }}
-            </v-col>
-            <v-col cols="6">
-              <strong>Pet Type:</strong> {{ selected.petType }}
-            </v-col>
-
-            <v-col cols="6">
-              <strong>Breed:</strong> {{ selected.petBreed }}
-            </v-col>
-            <v-col cols="6">
-              <strong>Owner:</strong> {{ selected.ownerName }}
-            </v-col>
-
-            <v-col cols="12">
-              <strong>Services:</strong>
-              <v-chip-group column>
-                <v-chip
-                  v-for="service in selected.services"
-                  :key="service"
-                  size="x-small"
-                  variant="outlined"
-                >
-                  {{ service }}
-                </v-chip>
-              </v-chip-group>
-            </v-col>
-
-            <v-col cols="12">
-              <strong>Visit Date:</strong>
-              {{ formatDate(selected.lastVisit) }}
-            </v-col>
-
-            <v-col cols="12">
-              <strong>Notes:</strong>
-              <div class="text-caption text-grey">
-                {{ selected.notes || 'No notes recorded.' }}
-              </div>
-            </v-col>
-          </v-row>
-        </v-card-text>
-
-        <v-divider />
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="dialog = false">
-            Close
-          </v-btn>
-        </v-card-actions>
+          <template #item.services="{ item }">
+            {{ item.services.join(', ') }}
+          </template>
+        </v-data-table>
       </v-card>
-    </v-dialog>
-  </v-container>
+    </v-col>
+
+  </v-row>
 </template>
 
 <script setup lang="ts">
@@ -140,9 +75,22 @@ definePageMeta({
   layout: "admin",
 });
 
+import { ref, computed, watch } from "vue";
+
+/* SEARCH */
 const search = ref("");
 
-const patients = ref([
+/* TABLE */
+const headers = [
+  { title: "Pet Name", value: "petName" },
+  { title: "Owner", value: "ownerName" },
+  { title: "Type", value: "petType" },
+  { title: "Breed", value: "petBreed" },
+  { title: "Last Visit", value: "lastVisit" },
+  { title: "Services", value: "services" },
+];
+
+const items = ref([
   {
     id: 1,
     petName: "Buddy",
@@ -151,7 +99,6 @@ const patients = ref([
     ownerName: "Juan Dela Cruz",
     lastVisit: "2025-01-20",
     services: ["Vaccination", "Check-up"],
-    notes: "Healthy, next vaccine in 6 months",
   },
   {
     id: 2,
@@ -161,27 +108,116 @@ const patients = ref([
     ownerName: "Maria Santos",
     lastVisit: "2025-01-18",
     services: ["Deworming"],
-    notes: "",
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
+  },
+  {
+    id: 2,
+    petName: "Mingming",
+    petType: "Cat",
+    petBreed: "Persian",
+    ownerName: "Maria Santos",
+    lastVisit: "2025-01-18",
+    services: ["Deworming"],
   },
 ]);
 
-const filteredPatients = computed(() =>
-  patients.value.filter(
-    (p) =>
-      p.petName.toLowerCase().includes(search.value.toLowerCase()) ||
-      p.ownerName.toLowerCase().includes(search.value.toLowerCase())
+/* FILTER */
+const filteredItems = computed(() =>
+  items.value.filter((p) =>
+    `${p.petName} ${p.ownerName}`
+      .toLowerCase()
+      .includes(search.value.toLowerCase())
   )
 );
 
-/* VIEW RECORD */
-const dialog = ref(false);
-const selected = ref<any>({});
+/* PAGINATION */
+const page = ref(1);
+const itemsPerPage = 10;
 
-function view(patient: any) {
-  selected.value = patient;
-  dialog.value = true;
-}
+const pages = computed(() =>
+  Math.ceil(filteredItems.value.length / itemsPerPage)
+);
 
+const pagedItems = computed(() => {
+  const start = (page.value - 1) * itemsPerPage;
+  return filteredItems.value.slice(start, start + itemsPerPage);
+});
+
+const pageRange = computed(() => {
+  if (!filteredItems.value.length) return "0 - 0 of 0";
+  const start = (page.value - 1) * itemsPerPage + 1;
+  const end = Math.min(
+    start + itemsPerPage - 1,
+    filteredItems.value.length
+  );
+  return `${start} - ${end} of ${filteredItems.value.length}`;
+});
+
+const loading = ref(false);
+
+/* FORMAT */
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString("en-US", {
     month: "short",

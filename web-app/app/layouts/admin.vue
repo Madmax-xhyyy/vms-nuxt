@@ -96,12 +96,12 @@ const items = [
   {
     title: 'Dashboard',
     route: { name: 'admin-dashboard' },
-    icon: 'mdi-view-dashboard',
+    icon: 'mdi-view-dashboard-outline',
   },
   {
     title: 'Appointment Requests',
     route: { name: 'admin-appointment-requests' },
-    icon: 'mdi-frequently-asked-questions',
+    icon: 'mdi-file-document-alert-outline',
   },
   {
     title: 'Appointments',

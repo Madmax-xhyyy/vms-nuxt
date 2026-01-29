@@ -1,59 +1,63 @@
 <template>
   <v-row no-gutters>
-    <!-- Toolbar -->
-    <v-col cols="12"  class="mb-2">
+    <v-col cols="12" class="mb-2">
       <v-row align="center">
-        <v-col cols="6" class="d-flex align-center">
-          <h3 class="mr-2">Appointments</h3>
+        <!-- LEFT ACTIONS -->
+        <v-col cols="12" sm="8">
+          <v-row no-gutters align="center"  class="flex-wrap gap-2">
+
+            <v-btn
+              color="primary"
+              variant="tonal"
+              size="large"
+              class="w-100 w-sm-auto mb-2 mr-2 mb-sm-0"
+              @click="handleDialogAdd"
+            >
+              <v-icon size="16" class="mr-2">mdi-plus</v-icon>
+              Appointment
+            </v-btn>
+
+            <v-menu>
+              <template #activator="{ props }">
+                <v-btn
+                  class="text-none px-4 text-capitalize w-100 w-sm-auto"
+                  variant="tonal"
+                  size="large"
+                  v-bind="props"
+                >
+                  {{ status }}
+                </v-btn>
+              </template>
+
+              <v-list class="pa-0" max-height="250px">
+                <v-list-item
+                  v-for="(item, index) in statuses"
+                  :key="index"
+                  @click="navigateQueryStatus(item.value)"
+                >
+                  <v-icon size="16" class="mr-2">
+                    {{ status === item.value ? 'mdi-check-bold' : '' }}
+                  </v-icon>
+                  {{ item.text }}
+                </v-list-item>
+              </v-list>
+            </v-menu>
+
+          </v-row>
+        </v-col>
+
+        <!-- SEARCH -->
+        <v-col cols="12" sm="4">
           <v-text-field
             v-model="search"
             label="Search"
             variant="outlined"
             density="compact"
+            class="w-100"
             hide-details
-            clearable
           />
         </v-col>
-        
-        <v-col cols="6">
-          <v-btn 
-          color="primary" 
-          variant="tonal" 
-          class="mr-2"
-          @click="handleDialogAdd()"
-        >
-          <v-icon start>mdi-plus</v-icon>
-          Appointment
-        </v-btn>
-        
-        <v-menu>
-          <template #activator="{ props }">
-            <v-btn 
-            v-bind="props" 
-            variant="tonal"
-            class="mr-2"
-            >
-              {{ status }}
-              <v-icon right>mdi-menu-down</v-icon>
-            </v-btn>
-          </template>
 
-          <v-list class="pa-0" max-height="250px">
-            <v-list-item
-              v-for="(item, i) in statuses"
-              :key="i"
-              :value="i"
-              @click="navigateQueryStatus(item.value)"
-            >
-              <v-icon size="16" class="mr-2">
-                {{ status === item.value ? "mdi-check-bold" : "" }}
-              </v-icon>
-              {{ item.text }}
-            </v-list-item>
-          </v-list>
-        </v-menu>
-        </v-col>
-        
       </v-row>
     </v-col>
 
@@ -71,6 +75,7 @@
             <v-btn fab icon density="comfortable" @click="_getAllAppointments">
               <v-icon>mdi-refresh</v-icon>
             </v-btn>
+            
           </template>
 
           <template #append>
@@ -89,7 +94,7 @@
           item-value="_id"
           :items-per-page="10"
           hide-default-footer
-          style="max-height: calc(100vh - (126px))"
+          style="max-height: calc(100vh - (200px))"
           @click:row="handleRowClick"
         >
           <template #item.date="{ item }">
@@ -184,10 +189,13 @@ const statuses = [
 
 const status = computed(() => (route.query.status as string) ?? "Approved");
 
-const formatDate = (date: string | undefined) => {
-  if (!date) return "";
-  return new Date(date).toLocaleDateString();
-};
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
 const formatTime = (timeString?: string) => {
   if (!timeString) return 'Not set';
@@ -262,7 +270,7 @@ function handleDialogAdd() {
 
 async function submitAdd() {
   try {
-    const res = await $fetch<AddAppointmentResponse>("/api/appointments", {
+    await $fetch("/api/appointments", {
       method: "POST",
       body: {
         ...form.value,
