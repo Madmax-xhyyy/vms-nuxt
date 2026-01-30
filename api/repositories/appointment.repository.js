@@ -121,6 +121,22 @@ export function useAppointmentRepo() {
     }
   }
 
+  async function getAppointmentStatusCounts() {
+    return collection
+      .aggregate([
+        {
+          $match: { status: { $ne: "deleted" } },
+        },
+        {
+          $group: {
+            _id: "$status",
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
+  }
+
   async function getById(id) {
     try {
       return await collection.findOne({ _id: new ObjectId(id) });
@@ -206,5 +222,5 @@ export function useAppointmentRepo() {
     }
   }
 
-  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, deleteById, createAppointmentIndexes };
+  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, getAppointmentStatusCounts, deleteById, createAppointmentIndexes };
 }

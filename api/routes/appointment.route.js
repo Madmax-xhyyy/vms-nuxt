@@ -23,6 +23,9 @@ export default function useAppointmentRoute() {
   // Get all pending appointments
   router.get("/status/pending", requireAuth, useAppointmentController().getAllPendingAppointments);
 
+  // Get appointment stats
+  router.get("/stats", requireAuth, useAppointmentController().getAppointmentStats);
+
   // Delete by id
   router.delete("/id/:id", requireAuth, useAppointmentController().deleteById);
 

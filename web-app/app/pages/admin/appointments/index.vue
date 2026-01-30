@@ -176,7 +176,7 @@ const pendingStatus = ref("");
 
 const headers = [
   { title: "Date", value: "date" },
-  { title: "Preferred Time", value: "time" },
+  { title: "Time", value: "time" },
   { title: "Full Name", value: "fullName" },
   { title: "Pet Name", value: "petName" },
 ];

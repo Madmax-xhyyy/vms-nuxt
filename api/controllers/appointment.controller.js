@@ -12,6 +12,7 @@ export function useAppointmentController() {
     getById: _getById,
     updateById: _updateById,
     updateStatusById: _updateStatusById,
+    getAppointmentStatusCounts: _getAppointmentStatusCounts,
     deleteById: _deleteById
   } = useAppointmentRepo();
 
@@ -186,6 +187,29 @@ export function useAppointmentController() {
 
   }
 
+  async function getAppointmentStats(req, res, next) {
+    try {
+      const data = await _getAppointmentStatusCounts();
+
+      const stats = {
+        Pending: 0,
+        Approved: 0,
+        Done: 0,
+        Rejected: 0,
+      };
+
+      data.forEach((item) => {
+        if (item._id && stats.hasOwnProperty(item._id)) {
+          stats[item._id] = item.count;
+        }
+      });
+
+      res.status(200).json(stats);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async function deleteById(req, res) {
     const validation = Joi.object({
       id: Joi.string().hex().length(24).required(),
@@ -210,5 +234,5 @@ export function useAppointmentController() {
     }
   }
 
-  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, deleteById };
+  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, getAppointmentStats, deleteById };
 }

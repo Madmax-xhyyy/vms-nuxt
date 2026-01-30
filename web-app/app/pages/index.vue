@@ -86,6 +86,7 @@
 definePageMeta({
   layout: 'public',
 })
+
 const services = [
   { title: 'Pet Checkups', desc: 'Routine health exams.', icon: 'mdi-stethoscope' },
   { title: 'Vaccinations', desc: 'Protection from diseases.', icon: 'mdi-syringe' },
