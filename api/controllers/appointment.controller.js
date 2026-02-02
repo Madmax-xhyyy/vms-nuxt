@@ -16,7 +16,10 @@ export function useAppointmentController() {
     deleteById: _deleteById
   } = useAppointmentRepo();
 
-  const { add: _add } = useAppointmentService();
+  const {
+    add: _add,
+    updateStatusById: _updateStatusByIdService,
+  } = useAppointmentService();
   // Get all
   async function getAll(req, res) {
     const page = parseInt(req.query.page) || 1;
@@ -174,7 +177,7 @@ export function useAppointmentController() {
     }
 
     try {
-      const message = await _updateStatusById(
+      const message = await _updateStatusByIdService(
         req.params.id,
         status,
       );
