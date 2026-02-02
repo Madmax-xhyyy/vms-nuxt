@@ -29,7 +29,7 @@
         rounded="lg"
         :loading="loading"
       >
-        <v-toolbar density="compact" color="grey-lighten-4">
+        <v-toolbar density="compact" color="blue-lighten-5">
           <template #prepend>
             <v-btn fab icon density="comfortable" @click="">
               <v-icon>mdi-refresh</v-icon>

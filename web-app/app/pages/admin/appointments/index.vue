@@ -21,7 +21,7 @@
               <template #activator="{ props }">
                 <v-btn
                   class="text-none px-4 text-capitalize w-100 w-sm-auto"
-                  variant="tonal"
+                  color="blue-grey-lighten-2"
                   size="large"
                   v-bind="props"
                 >
@@ -70,7 +70,7 @@
         rounded="lg"
         :loading="loadingAppointments"
       >
-        <v-toolbar density="compact" color="grey-lighten-4">
+        <v-toolbar density="compact" color="blue-lighten-5">
           <template #prepend>
             <v-btn fab icon density="comfortable" @click="_getAllAppointments">
               <v-icon>mdi-refresh</v-icon>
@@ -112,6 +112,7 @@
   <v-dialog v-model="dialogAdd" max-width="700" persistent>
     <AppointmentForm
       v-model="form"
+      :loading="loadingAdd"
       @submit:add="submitAdd()"
       @cancel="dialogAdd = false"
     />
@@ -213,9 +214,10 @@ const formatTime = (timeString?: string) => {
   }).format(new Date().setHours(hours, minutes, 0, 0));
 };
 
-const { appointment, getAllAppointments, updateStatusById, deleteById } = useAppointment();
+const { appointment, getAllAppointments, updateStatusById, deleteById, create, defaultAppointment } = useAppointment();
 
 const form = ref(appointment);
+const loadingAdd = ref(false);
 const {
   data: appointmentsData,
   refresh: _getAllAppointments,
@@ -248,19 +250,7 @@ function navigateQueryStatus(statusValue: string) {
 };
 
 function resetForm() {
-  form.value = {
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    petName: "",
-    petType: null,
-    petBreed: "",
-    petAge: "",
-    services: [],
-    date: "",
-    time: "",
-  } as TAppointment;
+  form.value = defaultAppointment();
 }
 
 function handleDialogAdd() {
@@ -269,14 +259,10 @@ function handleDialogAdd() {
 }
 
 async function submitAdd() {
+  loadingAdd.value = true;
   try {
-    await $fetch("/api/appointments", {
-      method: "POST",
-      body: {
-        ...form.value,
-      },
-    });
-    dialogAdd.value = false;  
+    await create(form.value);
+    dialogAdd.value = false;
     resetForm();
     await _getAllAppointments();
   } catch (error: any) {
@@ -284,6 +270,8 @@ async function submitAdd() {
     message.value =
       error.response._data.message ||
       "An error occurred while adding the appointment.";
+  } finally {
+    loadingAdd.value = false;
   }
 }
 

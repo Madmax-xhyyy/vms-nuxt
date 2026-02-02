@@ -15,7 +15,7 @@
         rounded="lg"
         :loading="loadingAppointments"
       >
-        <v-toolbar density="compact" color="grey-lighten-4">
+        <v-toolbar density="compact" color="blue-lighten-5">
           <template #prepend>
             <v-btn fab icon density="comfortable" @click="_getAllPendingAppointments">
               <v-icon>mdi-refresh</v-icon>

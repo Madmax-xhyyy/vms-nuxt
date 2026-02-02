@@ -1,5 +1,5 @@
 export function useAppointment() {
-  const appointment = ref<TAppointment>({
+  const defaultAppointment = (): TAppointment => ({
     fullName: "",
     email: "",
     phone: "",
@@ -12,6 +12,8 @@ export function useAppointment() {
     date: "",
     time: "",
   });
+
+  const appointment = ref<TAppointment>(defaultAppointment());
 
   const petTypeOptions = {
     Dog: ["Labrador Retriever", "Golden Retriever", "Beagle", "Pomeranian", "Shih Tzu", "Chihuahua", "French Bulldog", "Pug", "Dachshund"],
@@ -77,8 +79,17 @@ export function useAppointment() {
     });
   }
 
+  function create(data: TAppointment) {
+    return $fetch<TAppointment>(`/api/appointments`, {
+      method: "POST",
+      body: data,
+    });
+  }
+
   return {
     appointment,
+    defaultAppointment,
+    create,
     petTypeOptions,
     petTypeKeys,
     petBreeds,

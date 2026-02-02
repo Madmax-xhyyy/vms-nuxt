@@ -1,236 +1,237 @@
 <template>
-  <v-card width="100%" elevation="0">
-    <!-- HEADER -->
-    <v-toolbar density="comfortable">
-      <v-toolbar-title class="font-weight-bold">
-        {{ localProps.title }}
-      </v-toolbar-title>
-    </v-toolbar>
+  <v-card width="100%" rounded="lg" elevation="1">
+    <!-- Header -->
+    <v-card-title class="text-center">
+      <span class="text-h6 font-weight-bold">Book an Appointment</span>
+    </v-card-title>
 
-    <!-- BODY -->
-    <v-card-text class="pa-6" style="max-height: 100vh; overflow-y: auto">
-      <!-- VIEW MODE -->
-      <v-row v-if="localProps.mode === 'view'" no-gutters>
-        <v-col cols="12" class="mb-4">
-          <v-sheet rounded="lg" border class="pa-5">
-            <v-row>
-              <v-col cols="12" class="font-weight-bold mb-2">
-                Appointment Details
-              </v-col>
+    <v-divider />
 
-              <v-col cols="6">
-                <strong>Owner:</strong> {{ formModel.ownerId }}
-              </v-col>
-
-              <v-col cols="6">
-                <strong>Pet:</strong> {{ formModel.petId }}
-              </v-col>
-
-              <v-col cols="6">
-                <strong>Service:</strong> {{ formModel.serviceId }}
-              </v-col>
-
-              <v-col cols="6">
-                <strong>Status:</strong>
-                <v-chip color="success" size="small">
-                  {{ formModel.status }}
-                </v-chip>
-              </v-col>
-
-              <v-col cols="6">
-                <strong>Date:</strong> {{ formModel.appointmentDate }}
-              </v-col>
-
-              <v-col cols="6">
-                <strong>Time:</strong> {{ formModel.appointmentTime }}
-              </v-col>
-
-              <v-col cols="12" v-if="formModel.notes">
-                <strong>Notes:</strong>
-                <div class="mt-1">{{ formModel.notes }}</div>
-              </v-col>
-            </v-row>
-          </v-sheet>
-        </v-col>
-      </v-row>
-
-      <!-- FORM MODE -->
-      <v-form v-else ref="formRef" v-model="isFormValid">
+    <!-- Form -->
+    <v-card-text style="max-height: 100vh; overflow-y: auto" class="mt-4">
+      <v-form v-model="valid">
+        <!-- Owner Info -->
         <v-row>
-          <v-col cols="6">
+          <v-col cols="12" md="6">
             <v-text-field
-              v-model="formModel.ownerId"
-              label="Owner"
+              v-model="formModel.fullName"
+              label="Owner Name"
               variant="outlined"
               :rules="[requiredRule]"
             />
           </v-col>
 
-          <v-col cols="6">
+          <v-col cols="12" md="6">
             <v-text-field
-              v-model="formModel.petId"
-              label="Pet"
+              v-model="formModel.email"
+              label="Email"
+              variant="outlined"
+              :rules="[requiredRule]"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="formModel.phone"
+              label="Phone"
               variant="outlined"
               :rules="[requiredRule]"
             />
           </v-col>
 
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="formModel.address"
+              label="Address"
+              variant="outlined"
+              :rules="[requiredRule]"
+            />
+          </v-col>
+        </v-row>
+
+        <!-- Pet Info -->
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="formModel.petName"
+              label="Pet Name"
+              variant="outlined"
+              :rules="[requiredRule]"
+            />
+          </v-col>
+
+          <v-col cols="12" md="6">
+            <v-select
+              v-model="formModel.petType"
+              label="Pet Type"
+              variant="outlined"
+              :items="petTypeKeys"
+              :rules="[requiredRule]"
+              @update:model-value="onPetTypeChange"
+            />
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-select
+              v-model="formModel.petBreed"
+              label="Pet Breed"
+              variant="outlined"
+              :items="breedForSelectedType"
+              :rules="[requiredRule]"
+              :disabled="!formModel.petType"
+            />
+          </v-col>
+
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="formModel.petAge"
+              label="Pet Age"
+              variant="outlined"
+              :rules="[requiredRule]"
+            />
+          </v-col>
+        </v-row>
+
+        <!-- Services -->
+        <v-row>
           <v-col cols="12">
-            <v-text-field
-              v-model="formModel.serviceId"
-              label="Service"
+            <v-select
+              v-model="formModel.services"
+              label="Services"
               variant="outlined"
+              multiple
+              :items="services"
               :rules="[requiredRule]"
             />
           </v-col>
+        </v-row>
 
-          <v-col cols="6">
+        <!-- Schedule -->
+        <v-row>
+          <v-col cols="12" md="6">
             <v-text-field
-              v-model="formModel.appointmentDate"
+              v-model="formModel.date"
+              label="Date"
               type="date"
-              label="Appointment Date"
               variant="outlined"
               :rules="[requiredRule]"
             />
           </v-col>
 
-          <v-col cols="6">
+          <v-col cols="12" md="6">
             <v-text-field
-              v-model="formModel.appointmentTime"
+              v-model="formModel.time"
+              label="Time"
               type="time"
-              label="Appointment Time"
               variant="outlined"
               :rules="[requiredRule]"
-            />
-          </v-col>
-
-          <v-col cols="12">
-            <v-textarea
-              v-model="formModel.notes"
-              label="Notes"
-              rows="3"
-              variant="outlined"
             />
           </v-col>
         </v-row>
       </v-form>
-
       <v-alert
-        v-if="message"
+        v-if="errorMessage"
         type="error"
         variant="tonal"
         class="mt-4"
-        closable
-        @click:close="message = ''"
       >
-        {{ message }}
+        {{ errorMessage }}
       </v-alert>
     </v-card-text>
 
-    <!-- FOOTER ACTIONS -->
-    <v-divider />
-
+    <!-- Action -->
     <v-toolbar density="compact">
       <v-row no-gutters>
-        <!-- VIEW MODE -->
-        <template v-if="localProps.mode === 'view'">
-          <v-col cols="6">
-            <v-btn block variant="text" @click="emits('close')">
-              Close
-            </v-btn>
-          </v-col>
+        <v-col cols="6">
+          <v-btn
+            tile
+            block
+            variant="text"
+            class="text-none"
+            size="48"
+            @click="emit('cancel')"
+          >
+            Cancel
+          </v-btn>
+        </v-col>
 
-          <v-col cols="6">
-            <v-btn block color="primary" @click="emits('edit')">
-              Edit
-            </v-btn>
-          </v-col>
-        </template>
-
-        <!-- ADD / EDIT MODE -->
-        <template v-else>
-          <v-col cols="6">
-            <v-btn block variant="text" @click="emits('cancel')">
-              Cancel
-            </v-btn>
-          </v-col>
-
-          <v-col cols="6" v-if="localProps.mode === 'add'">
-            <v-btn
-              block
-              color="primary"
-              :disabled="!isFormValid"
-              @click="emits('submit:add')"
-            >
-              Save & Approve
-            </v-btn>
-          </v-col>
-
-          <v-col cols="6" v-if="localProps.mode === 'edit'">
-            <v-btn
-              block
-              color="primary"
-              :disabled="!isFormValid"
-              @click="emits('submit:update')"
-            >
-              Save Changes
-            </v-btn>
-          </v-col>
-        </template>
+        <v-col cols="6">
+          <v-btn
+            tile
+            block
+            variant="flat"
+            color="primary"
+            class="text-none"
+            size="48"
+            :loading="loading"
+            :disabled="!valid || loading"
+            @click="submitAdd"
+          >
+            Submit
+          </v-btn>
+        </v-col>
       </v-row>
     </v-toolbar>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
 
-const localProps = defineProps({
-  title: {
-    type: String,
-    default: "Admin Appointment Form",
-  },
-  mode: {
-    type: String as PropType<"add" | "edit" | "view">,
-    default: "add",
-  },
-});
+const emit = defineEmits(["cancel", "success", "submit:add"]);
 
-const emits = defineEmits([
-  "submit:add",
-  "submit:update",
-  "cancel",
-  "close",
-  "edit",
-]);
+const { petTypeKeys, petBreeds, services, create } = useAppointment();
 
-const requiredRule = (v: any) => !!v || "This field is required";
-
-const message = defineModel("message", {
-  type: String,
-  default: "",
-});
-
-const isFormValid = ref(false);
 
 const formModel = defineModel("form", {
-  type: Object as PropType<{
-    ownerId: string;
-    petId: string;
-    serviceId: string;
-    appointmentDate: string;
-    appointmentTime: string;
-    notes?: string;
-    status?: string;
-  }>,
-  default: () => ({
-    ownerId: "",
-    petId: "",
-    serviceId: "",
-    appointmentDate: "",
-    appointmentTime: "",
-    notes: "",
-    status: "Approved", // ✅ ADMIN DEFAULT
-  }),
+  type: Object as PropType<TAppointment>,
+  default: () => useAppointment().appointment.value,
 });
+
+const props = defineProps({
+  loading: {
+    type: Boolean,
+    default: false,
+  },
+  errorMessage: {
+    type: String,
+    default: "",
+  },
+});
+
+
+const breedForSelectedType = computed(() => {
+  return petBreeds(formModel.value.petType as PetType);
+});
+
+const valid = ref(false);
+
+function onPetTypeChange() {
+  formModel.value.petBreed = "";
+}
+
+const requiredRule = (v: any) => {
+  if (Array.isArray(v)) return v.length > 0 || "Required.";
+  return !!v || "Required.";
+};
+
+async function submitAdd() {
+  // If there's a listener for submit:add, we emit and let parent handle it
+  // Otherwise we handle it internally
+  emit("submit:add");
+  
+  // Checking if there are listeners is hard in script setup without 'attrs'
+  // But usually, if we want it to be a standalone component, we can keep the internal fetch
+  // but only if 'submit:add' isn't explicitly handled? 
+  // Actually, I'll just change it to emit always and let the parent decide.
+  // But for the public 'appointment.vue', it might want a standalone component.
+  
+  // To keep it simple: emit the event. If the parent doesn't handle it, 
+  // we can have a fallback, but fallback logic can be messy.
+  
+  // Let's just make it emit and update the parents.
+}
 </script>

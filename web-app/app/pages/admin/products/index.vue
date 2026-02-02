@@ -1,155 +1,93 @@
 <template>
-  <v-container fluid>
-    <!-- HEADER -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="6">
-        <div class="text-h5 font-weight-bold">Food Products</div>
-        <div class="text-caption text-grey">
-          Manage pet food inventory
+  <v-container fluid class="pa-0">
+    <!-- PAGE HEADER -->
+    <v-row class="mb-4" align="center">
+      <v-col cols="12" md="8">
+        <h2 class="text-h6 text-md-h5 font-weight-bold">Products</h2>
+        <div class="text-body-2 text-grey">
+          Manage clinic food products
         </div>
       </v-col>
 
-      <v-col cols="12" md="6" class="text-right">
-        <v-btn color="primary" @click="openAdd">
-          Add Food Product
+      <v-col cols="12" md="4" class="text-md-right">
+        <v-btn
+          color="primary"
+          @click="navigateTo('/admin/products/add')"
+        >
+          Add Product
         </v-btn>
       </v-col>
     </v-row>
 
-    <!-- SEARCH -->
-    <v-row class="mb-4">
-      <v-col cols="12" md="4">
-        <v-text-field
-          v-model="search"
-          label="Search food"
-          variant="outlined"
-          density="comfortable"
-          clearable
-        />
-      </v-col>
-    </v-row>
-
-    <!-- TABLE -->
+    <!-- PRODUCTS TABLE -->
     <v-card variant="outlined">
-      <v-table density="comfortable">
-        <thead>
-          <tr>
-            <th>Food Name</th>
-            <th>Pet Type</th>
-            <th>Stock</th>
-            <th>Price</th>
-            <th>Status</th>
-            <th width="120">Actions</th>
-          </tr>
-        </thead>
+      <v-card-title class="text-subtitle-1 font-weight-bold">
+        Product List
+      </v-card-title>
 
-        <tbody>
-          <tr v-for="item in filteredFoods" :key="item.id">
-            <td>
-              <div class="font-weight-medium">{{ item.name }}</div>
-              <div class="text-caption text-grey">
-                {{ item.brand }}
-              </div>
-            </td>
+      <v-divider />
 
-            <td>{{ item.petType }}</td>
+      <v-card-text class="pa-0">
+        <v-table density="comfortable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
 
-            <td>{{ item.stock }}</td>
+          <tbody>
+            <tr
+              v-for="product in products"
+              :key="product._id"
+            >
+              <td>{{ product.name }}</td>
+              <td>{{ product.category }}</td>
+              <td>₱{{ product.price.toFixed(2) }}</td>
+              <td>{{ product.stock }}</td>
+              <td>
+                <v-chip
+                  size="x-small"
+                  variant="flat"
+                  :color="product.stock > 0 ? 'success' : 'error'"
+                >
+                  {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                </v-chip>
+              </td>
+              <td class="text-right">
+                <v-btn
+                  size="small"
+                  variant="text"
+                  color="primary"
+                  @click="editProduct(product._id)"
+                >
+                  Edit
+                </v-btn>
 
-            <td>{{ formatPrice(item.price) }}</td>
+                <v-btn
+                  size="small"
+                  variant="text"
+                  color="error"
+                  @click="deleteProduct(product._id)"
+                >
+                  Delete
+                </v-btn>
+              </td>
+            </tr>
 
-            <td>
-              <v-chip
-                size="x-small"
-                :color="item.stock > 0 ? 'success' : 'error'"
-              >
-                {{ item.stock > 0 ? 'In Stock' : 'Out of Stock' }}
-              </v-chip>
-            </td>
-
-            <td>
-              <v-btn icon size="small" variant="text" @click="openEdit(item)">
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                color="error"
-                @click="remove(item)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </td>
-          </tr>
-
-          <tr v-if="!filteredFoods.length">
-            <td colspan="6" class="text-center text-grey pa-6">
-              No food products found
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+            <tr v-if="!products.length">
+              <td colspan="6" class="text-center text-grey pa-4">
+                No products found
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </v-card-text>
     </v-card>
-
-    <!-- ADD / EDIT DIALOG -->
-    <v-dialog v-model="dialog" max-width="480">
-      <v-card>
-        <v-card-title class="font-weight-bold">
-          {{ isEdit ? 'Edit Food Product' : 'Add Food Product' }}
-        </v-card-title>
-
-        <v-divider />
-
-        <v-card-text>
-          <v-text-field
-            v-model="form.name"
-            label="Food Name"
-            variant="outlined"
-            class="mb-3"
-          />
-
-          <v-text-field
-            v-model="form.brand"
-            label="Brand"
-            variant="outlined"
-            class="mb-3"
-          />
-
-          <v-select
-            v-model="form.petType"
-            :items="['Dog', 'Cat', 'Both']"
-            label="Pet Type"
-            variant="outlined"
-            class="mb-3"
-          />
-
-          <v-text-field
-            v-model.number="form.stock"
-            label="Stock Quantity"
-            type="number"
-            variant="outlined"
-            class="mb-3"
-          />
-
-          <v-text-field
-            v-model.number="form.price"
-            label="Price"
-            type="number"
-            variant="outlined"
-          />
-        </v-card-text>
-
-        <v-divider />
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn variant="text" @click="dialog = false">Cancel</v-btn>
-          <v-btn color="primary" @click="">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -157,85 +95,40 @@
 definePageMeta({
   middleware: "auth",
   layout: "admin",
-});
+})
 
-const search = ref("");
+type Product = {
+  _id: string
+  name: string
+  category: string
+  price: number
+  stock: number
+}
 
-const foods = ref([
+// 🔹 Replace with API later
+const products = ref<Product[]>([
   {
-    id: 1,
-    name: "Adult Dog Food",
-    brand: "Royal Canin",
-    petType: "Dog",
-    stock: 15,
-    price: 1800,
+    _id: "1",
+    name: "Dog Food Premium",
+    category: "Dog Food",
+    price: 850,
+    stock: 12,
   },
   {
-    id: 2,
-    name: "Cat Dry Food",
-    brand: "Whiskas",
-    petType: "Cat",
+    _id: "2",
+    name: "Cat Food Tuna",
+    category: "Cat Food",
+    price: 620,
     stock: 0,
-    price: 950,
   },
-]);
+])
 
-const filteredFoods = computed(() =>
-  foods.value.filter((f) =>
-    f.name.toLowerCase().includes(search.value.toLowerCase())
-  )
-);
-
-/* DIALOG */
-const dialog = ref(false);
-const isEdit = ref(false);
-
-const form = reactive({
-  id: null as number | null,
-  name: "",
-  brand: "",
-  petType: "",
-  stock: 0,
-  price: 0,
-});
-
-function openAdd() {
-  isEdit.value = false;
-  Object.assign(form, {
-    id: null,
-    name: "",
-    brand: "",
-    petType: "",
-    stock: 0,
-    price: 0,
-  });
-  dialog.value = true;
+function editProduct(id: string) {
+  navigateTo(`/admin/products/${id}/edit`)
 }
 
-function openEdit(item: any) {
-  isEdit.value = true;
-  Object.assign(form, item);
-  dialog.value = true;
-}
-
-// function save() {
-//   if (isEdit.value) {
-//     const i = foods.value.findIndex((f) => f.id === form.id);
-//     foods.value[i] = { ...form };
-//   } else {
-//     foods.value.push({ ...form, id: Date.now() });
-//   }
-//   dialog.value = false;
-// }
-
-function remove(item: any) {
-  foods.value = foods.value.filter((f) => f.id !== item.id);
-}
-
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  }).format(value);
+function deleteProduct(id: string) {
+  // later: show confirmation dialog
+  products.value = products.value.filter(p => p._id !== id)
 }
 </script>
