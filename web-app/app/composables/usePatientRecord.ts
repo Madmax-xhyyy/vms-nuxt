@@ -1,0 +1,34 @@
+export function usePatientRecord() {
+  const patientRecord = ref<TPatientRecord>({
+    ownerName: "",
+    ownerEmail: "",
+    ownerPhone: "",
+    ownerAddress: "",
+    status: "",
+    pets: [],
+  });
+
+  function getAllPatientRecords({ page = 1, limit = 10, status = "", search = "" } = {}) {
+    return $fetch<Record<string, any>>(`/api/patient-records`, {
+      method: "GET",
+      query: {
+        page,
+        limit,
+        status,
+        search,
+      },
+    });
+  }
+
+  function getById(id: string) {
+    return $fetch<TPatientRecord>(`/api/patient-records/id/${id}`, {
+      method: "GET",
+    });
+  }
+
+  return {
+    getAllPatientRecords,
+    getById,
+    patientRecord,
+  }
+}

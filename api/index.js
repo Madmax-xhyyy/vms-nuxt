@@ -37,6 +37,7 @@ app.get("/health", (req, res) => {
 import useAuthRoute from "./routes/auth.route.js";
 import useProductRoute from "./routes/product.route.js";
 import useAppointmentRoute from "./routes/appointment.route.js";
+import usePatientRecordRoute from "./routes/patient.record.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -63,6 +64,7 @@ connectToDB().then(async () => {
   // After authentication routes, add:
   app.use("/api/appointments", useAppointmentRoute());
   app.use("/api/products", useProductRoute());
+  app.use("/api/patient-records", usePatientRecordRoute());
 
 
   // Error handling middleware (must be last)

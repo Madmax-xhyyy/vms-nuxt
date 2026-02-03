@@ -75,6 +75,8 @@ export function useAppointmentService() {
         modelPatientRecord({
           ownerName: appointment.fullName,
           ownerEmail: appointment.email,
+          ownerPhone: appointment.phone,
+          ownerAddress: appointment.address,
           pets: [
             {
               petName: appointment.petName,

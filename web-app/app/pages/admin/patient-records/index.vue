@@ -27,7 +27,7 @@
         variant="outlined"
         border="thin"
         rounded="lg"
-        :loading="loading"
+        :loading="loadingPatientRecord"
       >
         <v-toolbar density="compact" color="blue-lighten-5">
           <template #prepend>
@@ -49,24 +49,27 @@
 
         <v-data-table
           :headers="headers"
-          :items="pagedItems"
-          item-value="id"
-          :items-per-page="itemsPerPage"
+          :items="items"
+          item-value="_id"
+          :items-per-page="10"
+          @click:row="handleRowClick"
           hide-default-footer
           style="max-height: calc(100vh - 200px)"
         >
-          <template #item.lastVisit="{ item }">
-            {{ formatDate(item.lastVisit) }}
-          </template>
-
-          <template #item.services="{ item }">
-            {{ item.services.join(', ') }}
-          </template>
         </v-data-table>
       </v-card>
     </v-col>
 
   </v-row>
+
+  <v-dialog v-model="dialogView" max-width="700" persistent>
+    <PatientRecordPreview
+      v-model="form"
+      title="Patient Record Details"
+      mode="view"
+      @close="dialogView = false"
+    />
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -75,154 +78,53 @@ definePageMeta({
   layout: "admin",
 });
 
-import { ref, computed, watch } from "vue";
 
 /* SEARCH */
 const search = ref("");
+const page = ref(1);
+const pages = ref(10);
+const pageRange = ref("-- - -- of --");
+const message = ref("");
 
-/* TABLE */
 const headers = [
-  { title: "Pet Name", value: "petName" },
-  { title: "Owner", value: "ownerName" },
-  { title: "Type", value: "petType" },
-  { title: "Breed", value: "petBreed" },
-  { title: "Last Visit", value: "lastVisit" },
-  { title: "Services", value: "services" },
+  { title: "Full Name", value: "ownerName" },
+  { title: "Email", value: "ownerEmail" },
+  { title: "Phone", value: "ownerPhone" },
+  { title: "Pets Name", value: "pets.petName" },
 ];
 
-const items = ref([
-  {
-    id: 1,
-    petName: "Buddy",
-    petType: "Dog",
-    petBreed: "Golden Retriever",
-    ownerName: "Juan Dela Cruz",
-    lastVisit: "2025-01-20",
-    services: ["Vaccination", "Check-up"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-  {
-    id: 2,
-    petName: "Mingming",
-    petType: "Cat",
-    petBreed: "Persian",
-    ownerName: "Maria Santos",
-    lastVisit: "2025-01-18",
-    services: ["Deworming"],
-  },
-]);
+const dialogView = ref(false);
 
-/* FILTER */
-const filteredItems = computed(() =>
-  items.value.filter((p) =>
-    `${p.petName} ${p.ownerName}`
-      .toLowerCase()
-      .includes(search.value.toLowerCase())
-  )
+
+const { patientRecord, getAllPatientRecords } = usePatientRecord();
+
+const form = ref(patientRecord);
+const items = ref<Array<TPatientRecord>>([]);
+
+const{ 
+  data: PatientRecordData,
+  refresh: _getAllPatientRecords,
+  status: statusPatientRecord,
+} = await useLazyAsyncData(
+  `get-all-patient-records-${page.value}`,
+  () => getAllPatientRecords({ page: page.value }),
+  {
+    watch: [page],
+  },
 );
 
-/* PAGINATION */
-const page = ref(1);
-const itemsPerPage = 10;
-
-const pages = computed(() =>
-  Math.ceil(filteredItems.value.length / itemsPerPage)
-);
-
-const pagedItems = computed(() => {
-  const start = (page.value - 1) * itemsPerPage;
-  return filteredItems.value.slice(start, start + itemsPerPage);
+watchEffect(() => {
+  if (PatientRecordData.value) {
+    items.value = PatientRecordData.value.items;
+    pages.value = PatientRecordData.value.pages;
+    pageRange.value = PatientRecordData.value.pageRange;
+  }
 });
 
-const pageRange = computed(() => {
-  if (!filteredItems.value.length) return "0 - 0 of 0";
-  const start = (page.value - 1) * itemsPerPage + 1;
-  const end = Math.min(
-    start + itemsPerPage - 1,
-    filteredItems.value.length
-  );
-  return `${start} - ${end} of ${filteredItems.value.length}`;
-});
+const loadingPatientRecord = computed(() => statusPatientRecord.value === "pending");
 
-const loading = ref(false);
-
-/* FORMAT */
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+function handleRowClick(_: any, data: any) {
+  Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));
+  dialogView.value = true;
+};
 </script>

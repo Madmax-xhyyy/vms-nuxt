@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { db } from "../index.js";
 import { logger } from "../utils/logger.util.js";
+import { paginate } from "../utils/paginate.util.js";
 
 export function usePatientRecordRepo() {
   const collection = db.collection("patient.records");
@@ -64,44 +65,47 @@ export function usePatientRecordRepo() {
     }
   }
 
-  // 📄 Get all patient records (optional, for future UI)
   async function getAll({
     page = 1,
     limit = 10,
+    status,
     search = "",
   } = {}) {
     page = page > 0 ? page - 1 : page;
 
     const query = {};
+    if (status) {
+      query.status = status;
+    }
 
     if (search) {
       query.$text = { $search: search };
     }
-
     try {
       const items = await collection
         .aggregate([
-          { $match: query },
-          { $sort: { createdAt: -1 } },
-          { $skip: page * limit },
-          { $limit: limit },
+          {
+            $match: query,
+          },
+          {
+            $sort: { createdAt: -1 },
+          },
+          {
+            $skip: page * limit,
+          },
+          {
+            $limit: limit,
+          },
         ])
         .toArray();
 
       const length = await collection.countDocuments(query);
-
-      return {
-        items,
-        page,
-        limit,
-        length,
-      };
+      return paginate({ items, page, limit, length });
     } catch (error) {
       throw new Error("Failed to get patient records: " + error.message);
     }
   }
 
-  // 🧱 Indexes (run once)
   async function createPatientRecordIndexes() {
     try {
       await collection.createIndexes([
