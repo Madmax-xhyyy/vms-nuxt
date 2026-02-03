@@ -67,7 +67,6 @@
         width="100%"
         variant="outlined"
         border="thin"
-        rounded="lg"
         :loading="loadingAppointments"
       >
         <v-toolbar density="compact" color="blue-lighten-5">
@@ -113,6 +112,7 @@
     <AppointmentForm
       v-model="form"
       :loading="loadingAdd"
+      :error-message="errorMessage"
       @submit:add="submitAdd()"
       @cancel="dialogAdd = false"
     />
@@ -149,7 +149,7 @@
       content="Are you sure you want to delete this appointment?"
       @cancel="dialogDelete = false"
       @confirm="submitDelete"
-      v-model:message="message"
+      v-model:message="errorMessage"
       :disabled="disabledDelete"
     />
   </v-dialog>
@@ -166,7 +166,7 @@ const items = ref<Array<Record<string, any>>>([]);
 const page = ref(1);
 const pages = ref(10);
 const pageRange = ref("-- - -- of --");
-const message = ref("");
+const errorMessage = ref("");
 const search = ref('')
 
 const dialogAdd = ref(false);
@@ -257,21 +257,21 @@ function resetForm() {
 
 function handleDialogAdd() {
   resetForm();
+  errorMessage.value = "";
   dialogAdd.value = true;
 }
 
 async function submitAdd() {
   loadingAdd.value = true;
+  errorMessage.value = "";
   try {
     await create(form.value);
     dialogAdd.value = false;
     resetForm();
     await _getAllAppointments();
   } catch (error: any) {
-    console.error("Error:", error);
-    message.value =
-      error.response._data.message ||
-      "An error occurred while adding the appointment.";
+    console.error("Error adding appointment:", error);
+    errorMessage.value = error.response?._data?.message || "An error occurred while adding the appointment.";
   } finally {
     loadingAdd.value = false;
   }

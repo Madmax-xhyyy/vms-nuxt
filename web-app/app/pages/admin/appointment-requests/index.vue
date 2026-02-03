@@ -12,7 +12,6 @@
         width="100%"
         variant="outlined"
         border="thin"
-        rounded="lg"
         :loading="loadingAppointments"
       >
         <v-toolbar density="compact" color="blue-lighten-5">

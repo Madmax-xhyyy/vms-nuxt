@@ -26,7 +26,6 @@
         width="100%"
         variant="outlined"
         border="thin"
-        rounded="lg"
         :loading="loadingPatientRecord"
       >
         <v-toolbar density="compact" color="blue-lighten-5">

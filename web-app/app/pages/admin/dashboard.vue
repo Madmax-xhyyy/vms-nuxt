@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
     <!-- PAGE TITLE -->
-    <v-row class="mb-4">
+    <v-row class="mb-2">
       <v-col cols="12">
         <h2 class="text-h6 text-md-h5 font-weight-bold">Dashboard</h2>
         <div class="text-body-2 text-grey">
@@ -13,7 +13,7 @@
     <!-- STATS CARDS -->
     <v-row dense align="stretch" class="mb-4">
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="outlined" class="h-150" min-height="100">
+        <v-card variant="elevated" border="thin" class="h-150" min-height="100">
           <v-card-text>
             <div class="text-body-2 text-md-h6 text-grey mb-2">
               Pending Appointments
@@ -26,7 +26,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="outlined" class="h-150" min-height="100">
+        <v-card variant="elevated" border="thin" class="h-150" min-height="100">
           <v-card-text>
             <div class="text-body-2 text-md-h6 text-grey mb-2">Approved</div>
             <div class="text-h5 text-md-h4 font-weight-bold text-success">
@@ -37,7 +37,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="outlined" class="h-150" min-height="100">
+        <v-card variant="elevated" border="thin" class="h-150" min-height="100">
           <v-card-text>
             <div class="text-body-2 text-md-h6 text-grey mb-2">Completed</div>
             <div class="text-h5 text-md-h4 font-weight-bold text-info">
@@ -48,7 +48,7 @@
       </v-col>
 
       <v-col cols="12" sm="6" md="3">
-        <v-card variant="outlined" class="h-150" min-height="100">
+        <v-card variant="elevated" border="thin" class="h-150" min-height="100">
           <v-card-text>
             <div class="text-body-2 text-md-h6 text-grey mb-2">Rejected</div>
             <div class="text-h5 text-md-h4 font-weight-bold text-error">
@@ -63,8 +63,8 @@
     <v-row dense align="stretch" class="mb-4">
       <!-- QUICK ACTIONS -->
       <v-col cols="12" md="4">
-        <v-card variant="outlined" class="h-100">
-          <v-card-title class="text-subtitle-1 text-md-h6 font-weight-bold">
+        <v-card variant="elevated" border="thin" class="h-100">
+          <v-card-title class="text-subtitle-1 text-md-h6 font-weight-bold bg-blue-lighten-5">
             Quick Actions
           </v-card-title>
 
@@ -83,7 +83,7 @@
             <v-btn
               block
               variant="outlined"
-              @click="navigateTo('/admin/appointments/add')"
+              @click="handleAdd()"
             >
               Add Appointment
             </v-btn>
@@ -93,8 +93,8 @@
 
       <!-- PENDING APPOINTMENTS -->
       <v-col cols="12" md="8">
-        <v-card variant="outlined" class="h-100">
-          <v-card-title class="text-subtitle-1 text-md-h6 font-weight-bold">
+        <v-card variant="elevated" border="thin" class="h-100">
+          <v-card-title class="text-subtitle-1 text-md-h6 font-weight-bold bg-blue-lighten-5">
             Pending Appointments
           </v-card-title>
 
@@ -144,6 +144,16 @@
       </v-col>
     </v-row>
   </v-container>
+  <!--ADD DIALOG -->
+  <v-dialog v-model="dialogAdd" max-width="700" persistent>
+    <AppointmentForm
+      v-model="form"
+      :loading="loadingAdd"
+      :error-message="errorMessage"
+      @submit:add="submitAdd()"
+      @cancel="dialogAdd = false"
+    />
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -158,6 +168,8 @@ const stats = reactive({
   done: 0,
   rejected: 0,
 })
+
+const dialogAdd = ref(false)
 
 const loadingStats = ref(false)
 
@@ -179,10 +191,9 @@ interface Appointment {
 
 const recentAppointments = ref<Appointment[]>([])
 
-onMounted(async () => {
+async function fetchDashboardData() {
   try {
     loadingStats.value = true
-
     const [statsData, appointmentsData] = await Promise.all([
       $fetch<Stats>("/api/appointments/stats"),
       $fetch<{ items: Appointment[] }>("/api/appointments?status=Pending&limit=5"),
@@ -194,10 +205,14 @@ onMounted(async () => {
     stats.rejected = statsData.Rejected ?? 0
 
     recentAppointments.value = appointmentsData.items ?? []
+  } catch (error) {
+    console.error("Failed to fetch dashboard data:", error)
   } finally {
     loadingStats.value = false
   }
-})
+}
+
+onMounted(fetchDashboardData)
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -222,5 +237,34 @@ function formatDate(date: string | Date) {
   })
 }
 
+const { appointment, create, defaultAppointment } = useAppointment();
+const form = ref(appointment);
+const loadingAdd = ref(false);
+const errorMessage = ref("");
 
+function resetForm() {
+  form.value = defaultAppointment();
+}
+
+const handleAdd = () => {
+  resetForm();
+  errorMessage.value = "";
+  dialogAdd.value = true;
+}
+
+async function submitAdd() {
+  loadingAdd.value = true;
+  errorMessage.value = "";
+  try {
+    await create(form.value);
+    dialogAdd.value = false;
+    await fetchDashboardData();
+    resetForm();
+  } catch (error: any) {
+    console.error("Error adding appointment:", error);
+    errorMessage.value = error.response?._data?.message || "An error occurred while adding the appointment.";
+  } finally {
+    loadingAdd.value = false;
+  }
+}
 </script>
