@@ -69,7 +69,7 @@ export function usePatientRecordRepo() {
     page = 1,
     limit = 10,
     status,
-    search = "active",
+    search = "",
   } = {}) {
     page = page > 0 ? page - 1 : page;
 

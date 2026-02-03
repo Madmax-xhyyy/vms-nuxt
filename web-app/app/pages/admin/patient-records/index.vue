@@ -122,10 +122,10 @@ const{
   refresh: _getAllPatientRecords,
   status: statusPatientRecord,
 } = await useLazyAsyncData(
-  `get-all-patient-records-${page.value}`,
-  () => getAllPatientRecords({ page: page.value }),
+  `get-all-patient-records-${page.value}-${search.value}`,
+  () => getAllPatientRecords({ page: page.value, search: search.value }),
   {
-    watch: [page],
+    watch: [page, search],
   },
 );
 

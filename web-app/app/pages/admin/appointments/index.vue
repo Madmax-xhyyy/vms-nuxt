@@ -167,6 +167,7 @@ const page = ref(1);
 const pages = ref(10);
 const pageRange = ref("-- - -- of --");
 const message = ref("");
+const search = ref('')
 
 const dialogAdd = ref(false);
 const dialogView = ref(false);
@@ -223,10 +224,10 @@ const {
   refresh: _getAllAppointments,
   status: statusAppointment,
 } = await useLazyAsyncData(
-  `get-all-appointments-${status.value}-${page.value}`,
-  () => getAllAppointments({ page: page.value, status: status.value }),
+  `get-all-appointments-${status.value}-${page.value}-${search.value}`,
+  () => getAllAppointments({ page: page.value, status: status.value, search: search.value }),
   {
-    watch: [page, status],
+    watch: [page, status, search],
   },
 );
 
@@ -240,7 +241,8 @@ watchEffect(() => {
 
 const loadingAppointments = computed(() => statusAppointment.value === "pending");
 
-const search = ref("");
+
+
 
 function navigateQueryStatus(statusValue: string) {
   navigateTo({

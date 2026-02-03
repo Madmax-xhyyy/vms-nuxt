@@ -1,4 +1,6 @@
 import { useUserRepo } from "./repositories/user.repository.js";
+import { useAppointmentRepo } from "./repositories/appointment.repository.js";
+import { usePatientRecordRepo } from "./repositories/patient.record.repository.js";
 import { useRedis } from "./utils/redis-client.util.js";
 import { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } from "./config.js";
 import { useUserService } from "./services/user.service.js";
@@ -17,9 +19,16 @@ export default async function setup() {
   }
 
   const { createUserIndexes } = useUserRepo();
+  const { createAppointmentIndexes } = useAppointmentRepo();
+  const { createPatientRecordIndexes } = usePatientRecordRepo();
+
   try {
-    const message = await createUserIndexes();
-    logger.log({ level: "info", message: message });
+    const results = await Promise.all([
+      createUserIndexes(),
+      createAppointmentIndexes(),
+      createPatientRecordIndexes(),
+    ]);
+    results.forEach(message => logger.log({ level: "info", message }));
   } catch (error) {
     logger.log({ level: "error", message: error.message });
   }
