@@ -17,7 +17,7 @@ export function usePatientRecordController() {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search ?? "";
-    const status = req.query.status ?? "";
+    const status = req.query.status ?? "active";
 
     try {
       const items = await _getAll({ page, limit, search, status });

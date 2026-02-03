@@ -8,7 +8,7 @@ export function usePatientRecord() {
     pets: [],
   });
 
-  function getAllPatientRecords({ page = 1, limit = 10, status = "", search = "" } = {}) {
+  function getAllPatientRecords({ page = 1, limit = 10, status = "active", search = "" } = {}) {
     return $fetch<Record<string, any>>(`/api/patient-records`, {
       method: "GET",
       query: {
@@ -26,9 +26,16 @@ export function usePatientRecord() {
     });
   }
 
+  function deleteById(id: string) {
+    return $fetch<TPatientRecord>(`/api/patient-records/id/${id}`, {
+      method: "DELETE",
+    });
+  }
+
   return {
     getAllPatientRecords,
     getById,
+    deleteById,
     patientRecord,
   }
 }

@@ -1,8 +1,8 @@
 <template>
   <v-card width="100%" elevation="0">
     <!-- HEADER -->
-    <v-toolbar color="grey-lighten-4" density="comfortable">
-      <v-toolbar-title class="text-body-1 font-weight-bold">
+    <v-toolbar color="grey-lighten-4 px-6" density="compact">
+      <v-toolbar-title class="text-body-1 ma-0 font-weight-bold">
         Patient Record
       </v-toolbar-title>
 
@@ -26,7 +26,7 @@
 
             <v-row no-gutters>
               <v-col cols="12" md="6">
-                <InputLabel title="Full Name:" /> {{ formModel.ownerName }}
+                <InputLabel title="Name:" /> {{ formModel.ownerName }}
               </v-col>
               <v-col cols="12" md="6">
                 <InputLabel title="Email:" /> {{ formModel.ownerEmail }}
@@ -58,7 +58,7 @@
 
             <v-row no-gutters>
               <v-col cols="12" md="6">
-                <InputLabel title="Pet Name:" /> {{ pet.petName }}
+                <InputLabel title="Name:" /> {{ pet.petName }}
               </v-col>
               <v-col cols="12" md="6">
                 <InputLabel title="Age:" /> {{ pet.petAge }}
@@ -119,16 +119,57 @@
 
     <!-- FOOTER -->
     <v-toolbar density="compact">
-      <v-btn
-        tile
-        block
-        variant="text"
-        class="text-none"
-        height="48"
-        @click="emits('close')"
-      >
-        Close
-      </v-btn>
+      <v-row no-gutters>
+        <v-col cols="6">
+          <v-btn
+            tile
+            block
+            variant="text"
+            class="text-none"
+            height="48"
+            @click="emits('close')"
+          >
+            Close
+          </v-btn>
+        </v-col>
+        <v-col cols="6">
+          <v-menu location="top">
+            <template #activator="{ props }">
+              <v-btn
+                block
+                variant="flat"
+                color="primary"
+                class="text-none"
+                height="48"
+                v-bind="props"
+                tile
+              >
+                More actions
+              </v-btn>
+            </template>
+
+            <v-list class="pa-0">
+              <v-list-item
+                @click="emits('edit')"
+              >
+                <v-list-item-title class="text-subtitle-2">
+              Edit
+            </v-list-item-title>
+          </v-list-item>
+
+
+          <v-list-item
+            @click="emits('delete')"
+            class="bg-red-lighten-1"
+          >
+            <v-list-item-title class="text-subtitle-2">
+              Delete
+            </v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </v-col>
+      </v-row>
     </v-toolbar>
   </v-card>
 </template>
@@ -136,7 +177,7 @@
 <script setup lang="ts">
 import { type PropType } from "vue";
 
-const emits = defineEmits(["close"]);
+const emits = defineEmits(["close", "edit", "delete"]);
 
 const formModel = defineModel({
   type: Object as PropType<TPatientRecord>,

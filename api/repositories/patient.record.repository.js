@@ -69,7 +69,7 @@ export function usePatientRecordRepo() {
     page = 1,
     limit = 10,
     status,
-    search = "",
+    search = "active",
   } = {}) {
     page = page > 0 ? page - 1 : page;
 
@@ -127,6 +127,25 @@ export function usePatientRecordRepo() {
     }
   }
 
+  async function deleteById(id) {
+    try {
+      id = new ObjectId(id);
+    } catch (error) {
+      throw new Error("Invalid Id format");
+    }
+
+    try {
+      await collection.updateOne({ _id: id }, {
+        $set: {
+          status: "deleted",
+          deletedAt: new Date(),
+        }
+      });
+      return "Successfully deleted patient record";
+    } catch (error) {
+      throw new Error("Failed to delete patient record: " + error.message);
+    }
+  }
   return {
     findByEmail,
     getById,
@@ -134,5 +153,6 @@ export function usePatientRecordRepo() {
     update,
     getAll,
     createPatientRecordIndexes,
+    deleteById,
   };
 }

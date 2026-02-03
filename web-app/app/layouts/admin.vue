@@ -44,7 +44,7 @@
       mobile
       :permanent="mdAndUp"
       class="pt-4"
-      color="primary"
+      color="grey-darken-3"
       elevation="1"
     >
       <v-list nav>

@@ -31,7 +31,7 @@
       >
         <v-toolbar density="compact" color="blue-lighten-5">
           <template #prepend>
-            <v-btn fab icon density="comfortable" @click="">
+            <v-btn fab icon density="comfortable" @click="_getAllPatientRecords">
               <v-icon>mdi-refresh</v-icon>
             </v-btn>
             
@@ -68,6 +68,21 @@
       title="Patient Record Details"
       mode="view"
       @close="dialogView = false"
+      @edit="dialogView = false"
+      @delete="dialogDelete = true"
+    />
+  </v-dialog>
+
+  <!-- DELETE DIALOG -->
+  <v-dialog v-model="dialogDelete" width="450" persistent>
+    <ConfirmationPrompt
+      title="Delete Patient Record"
+      action="Delete"
+      content="Are you sure you want to delete this patient record?"
+      @cancel="dialogDelete = false"
+      @confirm="submitDelete"
+      v-model:message="message"
+      :disabled="disabledDelete"
     />
   </v-dialog>
 </template>
@@ -94,9 +109,10 @@ const headers = [
 ];
 
 const dialogView = ref(false);
+const dialogDelete = ref(false);
+const disabledDelete = ref(false);
 
-
-const { patientRecord, getAllPatientRecords } = usePatientRecord();
+const { patientRecord, getAllPatientRecords, deleteById } = usePatientRecord();
 
 const form = ref(patientRecord);
 const items = ref<Array<TPatientRecord>>([]);
@@ -122,6 +138,21 @@ watchEffect(() => {
 });
 
 const loadingPatientRecord = computed(() => statusPatientRecord.value === "pending");
+
+
+async function submitDelete() {
+  if (!form.value._id) return;
+  
+  try {
+    await deleteById(form.value._id);
+    dialogView.value = false;
+    dialogDelete.value = false;
+    await _getAllPatientRecords();
+  } catch (error) {
+    console.error('Failed to delete:', error);
+  }
+}
+
 
 function handleRowClick(_: any, data: any) {
   Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));
