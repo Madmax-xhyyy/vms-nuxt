@@ -110,9 +110,7 @@
   <!--ADD DIALOG -->
   <v-dialog v-model="dialogAdd" max-width="700" persistent>
     <AppointmentForm
-      v-model="form"
-      :loading="loadingAdd"
-      :error-message="errorMessage"
+      v-model:form="form"
       @submit:add="submitAdd()"
       @cancel="dialogAdd = false"
     />
@@ -215,10 +213,10 @@ const formatTime = (timeString?: string) => {
   }).format(new Date().setHours(hours, minutes, 0, 0));
 };
 
-const { appointment, getAllAppointments, updateStatusById, deleteById, create, defaultAppointment } = useAppointment();
+const { appointment, getAllAppointments, updateStatusById, deleteById } = useAppointment();
 
 const form = ref(appointment);
-const loadingAdd = ref(false);
+
 const {
   data: appointmentsData,
   refresh: _getAllAppointments,
@@ -252,30 +250,40 @@ function navigateQueryStatus(statusValue: string) {
 };
 
 function resetForm() {
-  form.value = defaultAppointment();
+  form.value = {
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    petName: "",
+    petType: null,
+    petBreed: "",
+    petAge: "",
+    services: [],
+    date: "",
+    time: "",
+  };
 }
 
 function handleDialogAdd() {
   resetForm();
-  errorMessage.value = "";
   dialogAdd.value = true;
 }
 
 async function submitAdd() {
-  loadingAdd.value = true;
-  errorMessage.value = "";
   try {
-    await create(form.value);
+    await $fetch("/api/appointments", {
+      method: "POST",
+      body: form.value,
+    });
     dialogAdd.value = false;
     resetForm();
     await _getAllAppointments();
-  } catch (error: any) {
-    console.error("Error adding appointment:", error);
-    errorMessage.value = error.response?._data?.message || "An error occurred while adding the appointment.";
-  } finally {
-    loadingAdd.value = false;
+  } catch (error) {
+    console.error("Error:", error);
   }
 }
+
 
 function handleStatusUpdate(status: 'Approved' | 'Done') {
   pendingStatus.value = status;

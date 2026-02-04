@@ -21,13 +21,13 @@ export function usePatientRecord() {
   }
 
   function getById(id: string) {
-    return $fetch<TPatientRecord>(`/api/patient-records/id/${id}`, {
+    return $fetch<Record<string, any>>(`/api/patient-records/id/${id}`, {
       method: "GET",
     });
   }
 
   function deleteById(id: string) {
-    return $fetch<TPatientRecord>(`/api/patient-records/id/${id}`, {
+    return $fetch<Record<string, any>>(`/api/patient-records/id/${id}`, {
       method: "DELETE",
     });
   }

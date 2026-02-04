@@ -1,5 +1,5 @@
 export function useAppointment() {
-  const defaultAppointment = (): TAppointment => ({
+  const appointment = ref<TAppointment>({
     fullName: "",
     email: "",
     phone: "",
@@ -12,8 +12,6 @@ export function useAppointment() {
     date: "",
     time: "",
   });
-
-  const appointment = ref<TAppointment>(defaultAppointment());
 
   const petTypeOptions = {
     Dog: ["Labrador Retriever", "Golden Retriever", "Beagle", "Pomeranian", "Shih Tzu", "Chihuahua", "French Bulldog", "Pug", "Dachshund"],
@@ -62,34 +60,25 @@ export function useAppointment() {
   }
 
   function getById(id: string) {
-    return $fetch<TAppointment>(`/api/appointments/id/${id}`, {
+    return $fetch<Record<string, any>>(`/api/appointments/id/${id}`, {
       method: "GET",
     });
   }
 
   function updateStatusById(id: string, status: string) {
-    return $fetch<TAppointment>(`/api/appointments/id/${id}/status/${status}`, {
+    return $fetch<Record<string, any>>(`/api/appointments/id/${id}/status/${status}`, {
       method: "PATCH",
     });
   }
 
   function deleteById(id: string) {
-    return $fetch<TAppointment>(`/api/appointments/id/${id}`, {
+    return $fetch<Record<string, any>>(`/api/appointments/id/${id}`, {
       method: "DELETE",
-    });
-  }
-
-  function create(data: TAppointment) {
-    return $fetch<TAppointment>(`/api/appointments`, {
-      method: "POST",
-      body: data,
     });
   }
 
   return {
     appointment,
-    defaultAppointment,
-    create,
     petTypeOptions,
     petTypeKeys,
     petBreeds,

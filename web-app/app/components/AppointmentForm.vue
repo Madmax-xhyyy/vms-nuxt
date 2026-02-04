@@ -133,14 +133,7 @@
           </v-col>
         </v-row>
       </v-form>
-      <v-alert
-        v-if="errorMessage"
-        type="error"
-        variant="tonal"
-        class="mt-4"
-      >
-        {{ errorMessage }}
-      </v-alert>
+    
     </v-card-text>
 
     <!-- Action -->
@@ -153,7 +146,7 @@
             variant="text"
             class="text-none"
             size="48"
-            @click="emit('cancel')"
+            @click="emits('cancel')"
           >
             Cancel
           </v-btn>
@@ -167,9 +160,8 @@
             color="primary"
             class="text-none"
             size="48"
-            :loading="loading"
-            :disabled="!valid || loading"
-            @click="submitAdd"
+            @click="emits('submit:add')"
+            :disabled="!valid"
           >
             Submit
           </v-btn>
@@ -181,27 +173,26 @@
 
 <script setup lang="ts">
 
-const emit = defineEmits(["cancel", "success", "submit:add"]);
+const localProps = defineProps({
+  title: {
+    type: String,
+    default: "Add Appointment",
+  },
+  mode: {
+    type: String,
+    default: "add",
+  },
+});
 
-const { petTypeKeys, petBreeds, services, create } = useAppointment();
+const emits = defineEmits(["cancel", "success", "submit:add"]);
+
+const { petTypeKeys, petBreeds, services } = useAppointment();
 
 
 const formModel = defineModel("form", {
   type: Object as PropType<TAppointment>,
-  default: () => useAppointment().appointment.value,
+  default: () => useAppointment().appointment,
 });
-
-const props = defineProps({
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  errorMessage: {
-    type: String,
-    default: "",
-  },
-});
-
 
 const breedForSelectedType = computed(() => {
   return petBreeds(formModel.value.petType as PetType);
@@ -218,20 +209,4 @@ const requiredRule = (v: any) => {
   return !!v || "Required.";
 };
 
-async function submitAdd() {
-  // If there's a listener for submit:add, we emit and let parent handle it
-  // Otherwise we handle it internally
-  emit("submit:add");
-  
-  // Checking if there are listeners is hard in script setup without 'attrs'
-  // But usually, if we want it to be a standalone component, we can keep the internal fetch
-  // but only if 'submit:add' isn't explicitly handled? 
-  // Actually, I'll just change it to emit always and let the parent decide.
-  // But for the public 'appointment.vue', it might want a standalone component.
-  
-  // To keep it simple: emit the event. If the parent doesn't handle it, 
-  // we can have a fallback, but fallback logic can be messy.
-  
-  // Let's just make it emit and update the parents.
-}
 </script>

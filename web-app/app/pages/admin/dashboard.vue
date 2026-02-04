@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="pa-0">
     <!-- PAGE TITLE -->
-    <v-row class="mb-2">
+    <v-row>
       <v-col cols="12">
         <h2 class="text-h6 text-md-h5 font-weight-bold">Dashboard</h2>
         <div class="text-body-2 text-grey">
