@@ -1,10 +1,13 @@
 <template>
   <v-row no-gutters>
     <!-- PAGE HEADER -->
-    <v-col cols="12" class="mb-4">
+    <v-col cols="12" class="mb-2">
       <v-row align="center">
         <v-col cols="12" sm="8">
           <h2 class="text-h6 text-md-h5 font-weight-bold">Products</h2>
+          <div class="text-body-2 text-grey">
+            Manage clinic products and inventory.
+          </div>
         </v-col>
 
         <v-col cols="12" sm="4">

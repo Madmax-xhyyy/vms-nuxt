@@ -3,7 +3,10 @@
     <v-col cols="12" class="mb-2">
       <v-row no-gutters>
         <v-col cols="12" class="text-h6 text-md-h5 font-weight-bold">
-          Appointment Requests
+          <h2 class="text-h6 text-md-h5 font-weight-bold">Appointment Requests</h2>
+          <div class="text-body-2 text-grey">
+            Review and manage incoming appointment requests.
+          </div>
         </v-col>
       </v-row>
     </v-col>

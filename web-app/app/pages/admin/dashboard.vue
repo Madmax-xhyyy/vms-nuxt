@@ -11,7 +11,7 @@
     </v-row>
 
     <!-- STATS CARDS -->
-    <v-row dense align="stretch" class="mb-4">
+    <v-row dense align="stretch">
       <v-col cols="12" sm="6" md="3">
         <v-card variant="elevated" border="thin" class="h-150" min-height="100">
           <v-card-text>
@@ -58,9 +58,35 @@
         </v-card>
       </v-col>
     </v-row>
+    <!-- STATS CARDS -->
+    <v-row dense align="stretch">
+      <v-col cols="12" sm="6" md="3">
+        <v-card variant="elevated" border="thin" class="h-150" min-height="100">
+          <v-card-text>
+            <div class="text-body-2 text-md-h6 text-grey mb-2">
+              Patient Records
+            </div>
+            <div class="text-h5 text-md-h4 font-weight-bold text-purple">
+              4
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" sm="6" md="3">
+        <v-card variant="elevated" border="thin" class="h-150" min-height="100">
+          <v-card-text>
+            <div class="text-body-2 text-md-h6 text-grey mb-2">Total Products</div>
+            <div class="text-h5 text-md-h4 font-weight-bold text-brown">
+              4
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
 
     <!-- QUICK ACTIONS + RECENT APPOINTMENTS -->
-    <v-row dense align="stretch" class="mb-4">
+    <v-row dense align="stretch">
       <!-- QUICK ACTIONS -->
       <v-col cols="12" md="4">
         <v-card variant="elevated" border="thin" class="h-100">
