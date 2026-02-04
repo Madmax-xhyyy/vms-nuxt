@@ -10,7 +10,19 @@ export function usePatientRecordController() {
     add: _add,
     updateById: _updateById,
     deleteById: _deleteById,
+    getCount: _getCount,
   } = usePatientRecordRepo();
+
+  async function getStats(req, res) {
+    try {
+      const count = await _getCount();
+      res.status(200).json({ count });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message || "Failed to get patient record stats",
+      });
+    }
+  }
 
 
   async function getAll(req, res) {
@@ -110,5 +122,6 @@ export function usePatientRecordController() {
     add,
     updateById,
     deleteById,
+    getStats,
   };
 }

@@ -159,5 +159,16 @@ export function useProductController() {
     }
   }
 
-  return { getAll, getById, add, updateById, updateStockById, deleteById };
+  async function getStats(req, res) {
+    try {
+      const count = await useProductRepo().getCount();
+      res.status(200).json({ count });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: error.message || "Failed to get product stats" });
+    }
+  }
+
+  return { getAll, getById, add, updateById, updateStockById, deleteById, getStats };
 }

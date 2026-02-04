@@ -149,5 +149,13 @@ export function useProductRepo() {
     }
   }
 
-  return { getAll, getById, add, updateById, updateStockById, deleteById, createProductIndexes };
+  async function getCount() {
+    try {
+      return await collection.countDocuments({ status: { $ne: "deleted" } });
+    } catch (error) {
+      throw new Error("Failed to get product count: " + error.message);
+    }
+  }
+
+  return { getAll, getById, add, updateById, updateStockById, deleteById, createProductIndexes, getCount };
 }

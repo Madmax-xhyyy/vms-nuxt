@@ -8,6 +8,9 @@ export default function useProductRoute() {
   // Get all
   router.get("/", requireAuth, useProductController().getAll);
 
+  // Get stats
+  router.get("/stats", requireAuth, useProductController().getStats);
+
   // Get by id
   router.get("/id/:id", requireAuth, useProductController().getById);
 

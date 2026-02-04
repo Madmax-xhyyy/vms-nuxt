@@ -8,6 +8,9 @@ export default function usePatientRecordRoute() {
   // Get all
   router.get("/", requireAuth, usePatientRecordController().getAll);
 
+  // Get stats
+  router.get("/stats", requireAuth, usePatientRecordController().getStats);
+
   // Get by id
   router.get("/id/:id", requireAuth, usePatientRecordController().getById);
 

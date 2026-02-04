@@ -67,7 +67,7 @@
               Patient Records
             </div>
             <div class="text-h5 text-md-h4 font-weight-bold text-purple">
-              4
+              {{ stats.patientRecords }}
             </div>
           </v-card-text>
         </v-card>
@@ -78,7 +78,7 @@
           <v-card-text>
             <div class="text-body-2 text-md-h6 text-grey mb-2">Total Products</div>
             <div class="text-h5 text-md-h4 font-weight-bold text-brown">
-              4
+              {{ stats.totalProducts }}
             </div>
           </v-card-text>
         </v-card>
@@ -191,6 +191,8 @@ const stats = reactive({
   approved: 0,
   done: 0,
   rejected: 0,
+  patientRecords: 0,
+  totalProducts: 0,
 })
 
 const dialogAdd = ref(false)
@@ -218,15 +220,19 @@ const recentAppointments = ref<Appointment[]>([])
 async function fetchDashboardData() {
   try {
     loadingStats.value = true
-    const [statsData, appointmentsData] = await Promise.all([
+    const [statsData, appointmentsData, patientStats, productStats] = await Promise.all([
       $fetch<Stats>("/api/appointments/stats"),
       $fetch<{ items: Appointment[] }>("/api/appointments?status=Pending&limit=5"),
+      $fetch<{ count: number }>("/api/patient-records/stats"),
+      $fetch<{ count: number }>("/api/products/stats"),
     ])
 
     stats.pending = statsData.Pending ?? 0
     stats.approved = statsData.Approved ?? 0
     stats.done = statsData.Done ?? 0
     stats.rejected = statsData.Rejected ?? 0
+    stats.patientRecords = patientStats.count ?? 0
+    stats.totalProducts = productStats.count ?? 0
 
     recentAppointments.value = appointmentsData.items ?? []
   } catch (error) {

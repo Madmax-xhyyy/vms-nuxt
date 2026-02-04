@@ -146,6 +146,15 @@ export function usePatientRecordRepo() {
       throw new Error("Failed to delete patient record: " + error.message);
     }
   }
+
+  async function getCount() {
+    try {
+      return await collection.countDocuments({ status: { $ne: "deleted" } });
+    } catch (error) {
+      throw new Error("Failed to get patient record count: " + error.message);
+    }
+  }
+
   return {
     findByEmail,
     getById,
@@ -154,5 +163,6 @@ export function usePatientRecordRepo() {
     getAll,
     createPatientRecordIndexes,
     deleteById,
+    getCount,
   };
 }
