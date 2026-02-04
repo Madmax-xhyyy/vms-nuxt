@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const schemaProduct = Joi.object({
-  _id: Joi.string().hex().length(24).required(),
+  _id: Joi.any().optional(),
   name: Joi.string().trim().min(1).max(200).required(),
   price: Joi.number().required(),
   category: Joi.string().trim().min(1).max(200).required(),
@@ -12,7 +12,7 @@ export const schemaProduct = Joi.object({
 });
 
 export const schemaProductUpdateById = Joi.object({
-  _id: Joi.string().hex().length(24).required(),
+  _id: Joi.any().optional(),
   name: Joi.string().trim().min(1).max(200).required(),
   price: Joi.number().required(),
   category: Joi.string().trim().min(1).max(200).required(),
@@ -23,7 +23,7 @@ export const schemaProductUpdateById = Joi.object({
 });
 
 export const schemaProductUpdateStockById = Joi.object({
-  _id: Joi.string().hex().length(24).required(),
+  _id: Joi.any().optional(),
   stock: Joi.number().required(),
   updatedAt: Joi.date().required(),
 });
@@ -39,7 +39,7 @@ export function modelProduct(value) {
   }
 
   return {
-    _id: value._id,
+    _id: value._id ? new ObjectId(value._id) : new ObjectId(),
     name: value.name,
     price: value.price,
     category: value.category,

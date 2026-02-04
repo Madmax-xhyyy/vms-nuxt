@@ -1,8 +1,8 @@
 <template>
   <v-card width="100%" rounded="lg" elevation="1">
     <!-- Header -->
-    <v-card-title class="text-center">
-      <span class="text-h6 font-weight-bold">Book an Appointment</span>
+    <v-card-title class="text-center bg-primary py-4" >
+      <span class="text-h6 font-weight-bold">{{ localProps.title }}</span>
     </v-card-title>
 
     <v-divider />
@@ -176,7 +176,7 @@
 const localProps = defineProps({
   title: {
     type: String,
-    default: "Add Appointment",
+    default: "Book an Appointment",
   },
   mode: {
     type: String,

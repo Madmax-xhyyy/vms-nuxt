@@ -97,7 +97,7 @@ const drawer = ref(false)
 const pendingCount = ref(0)
 const route = useRoute()
 
-const { mdAndUp, smAndDown } = useDisplay()
+const { mdAndUp, smAndDown } = useDisplay();
 
 async function fetchPendingCount() {
   try {
@@ -115,7 +115,7 @@ watch(() => route.path, fetchPendingCount)
 
 const navIcon = computed(() =>
   drawer.value ? 'mdi-close' : 'mdi-menu'
-)
+);
 
 const items = [
   {
@@ -148,5 +148,6 @@ const items = [
     route: { name: 'admin-settings' },
     icon: 'mdi-cog',
   },
-]
+];
+
 </script>

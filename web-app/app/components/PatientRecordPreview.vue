@@ -81,11 +81,10 @@
             </div>
 
             <v-table density="comfortable">
-              <thead>
+              <thead class="bg-blue-lighten-5">
                 <tr>
                   <th>Date</th>
                   <th>Services</th>
-                  <th>Notes</th>
                 </tr>
               </thead>
               <tbody>
@@ -105,7 +104,6 @@
                       {{ service }}
                     </v-chip>
                   </td>
-                  <td>{{ visit.notes || '—' }}</td>
                 </tr>
               </tbody>
             </v-table>

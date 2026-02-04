@@ -239,9 +239,6 @@ watchEffect(() => {
 
 const loadingAppointments = computed(() => statusAppointment.value === "pending");
 
-
-
-
 function navigateQueryStatus(statusValue: string) {
   navigateTo({
     name: "admin-appointments",

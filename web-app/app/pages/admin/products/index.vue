@@ -3,7 +3,7 @@
     <!-- PAGE HEADER -->
     <v-col cols="12" class="mb-2">
       <v-row align="center">
-        <v-col cols="12" sm="8">
+        <v-col cols="12" sm="4">
           <h2 class="text-h6 text-md-h5 font-weight-bold">Products</h2>
           <div class="text-body-2 text-grey">
             Manage clinic products and inventory.
@@ -19,6 +19,19 @@
             class="w-100"
             hide-details
           />
+        </v-col>
+
+        <v-col cols="12" sm="4">
+          <v-btn
+              color="primary"
+              variant="tonal"
+              size="large"
+              class="w-100 w-sm-auto mb-2 mr-2 mb-sm-0"
+              @click="handleDialogAdd"
+            >
+              <v-icon size="16" class="mr-2">mdi-plus</v-icon>
+              Product
+            </v-btn>
         </v-col>
       </v-row>
     </v-col>
@@ -63,29 +76,37 @@
 
   </v-row>
 
-  <!-- <v-dialog v-model="dialogView" max-width="700" persistent>
-    <PatientRecordPreview
+   <!--ADD DIALOG -->
+  <v-dialog v-model="dialogAdd" max-width="700" persistent>
+    <ProductForm
+      v-model:form="form"
+      @submit:add="submitAdd()"
+      @cancel="dialogAdd = false"
+    />
+  </v-dialog>
+
+  <v-dialog v-model="dialogView" max-width="700" persistent>
+    <ProductForm
       v-model="form"
-      title="Patient Record Details"
+      title="Product Details"
       mode="view"
-      @close="dialogView = false"
+      @cancel="dialogView = false"
       @edit="dialogView = false"
       @delete="dialogDelete = true"
     />
-  </v-dialog> -->
+  </v-dialog>
 
-  <!-- DELETE DIALOG -->
-  <!-- <v-dialog v-model="dialogDelete" width="450" persistent>
+   <!-- DELETE DIALOG -->
+  <v-dialog v-model="dialogDelete" width="450" persistent>
     <ConfirmationPrompt
-      title="Delete Patient Record"
+      title="Delete Product"
       action="Delete"
-      content="Are you sure you want to delete this patient record?"
+      content="Are you sure you want to delete this product?"
       @cancel="dialogDelete = false"
-      @confirm="submitDelete"
-      v-model:message="message"
+      @confirm="submitDelete()"
       :disabled="disabledDelete"
     />
-  </v-dialog> -->
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -101,6 +122,7 @@ const page = ref(1);
 const pages = ref(10);
 const pageRange = ref("-- - -- of --");
 const message = ref("");
+const dialogAdd = ref(false);
 
 const headers = [
   { title: "Name", value: "name" },
@@ -140,6 +162,33 @@ watchEffect(() => {
 
 const loadingProduct = computed(() => statusProduct.value === "pending");
 
+ const handleDialogAdd = () => {
+  dialogAdd.value = true;
+};
+
+function resetForm() {
+  form.value = {
+    name: "",
+    category: "",
+    price: 0,
+    stock: 0,
+    image: "",
+  };
+}
+
+async function submitAdd() {
+  try {
+    await $fetch("/api/products", {
+      method: "POST",
+      body: form.value,
+    });
+    dialogAdd.value = false;
+    resetForm();
+    await _getAllProducts();
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
 
 async function submitDelete() {
   if (!form.value._id) return;
