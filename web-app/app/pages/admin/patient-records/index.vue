@@ -58,6 +58,9 @@
           hide-default-footer
           style="max-height: calc(100vh - 200px)"
         >
+        <template #item.pets="{ item }">
+          {{ item.pets.map(p => p.petName).join(", ") }}
+        </template> 
         </v-data-table>
       </v-card>
     </v-col>
@@ -107,7 +110,7 @@ const headers = [
   { title: "Full Name", value: "ownerName" },
   { title: "Email", value: "ownerEmail" },
   { title: "Phone", value: "ownerPhone" },
-  { title: "Pets Name", value: "pets.petName" },
+  { title: "Pets Name", value: "pets" },
 ];
 
 const dialogView = ref(false);
@@ -140,7 +143,6 @@ watchEffect(() => {
 });
 
 const loadingPatientRecord = computed(() => statusPatientRecord.value === "pending");
-
 
 async function submitDelete() {
   if (!form.value._id) return;
