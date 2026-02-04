@@ -58,6 +58,14 @@
           <template #prepend>
             <v-icon size="20">{{ item.icon }}</v-icon>
           </template>
+          <template v-if="item.title === 'Appointment Requests' && pendingCount > 0" #append>
+            <v-badge
+              color="orange"
+              text-color="white"
+              :content="pendingCount"
+              inline
+            ></v-badge>
+          </template> 
 
           {{ item.title }}
         </v-list-item>
@@ -81,12 +89,29 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useDisplay } from 'vuetify'
+import { useRoute } from 'vue-router'
 
 const drawer = ref(false)
+const pendingCount = ref(0)
+const route = useRoute()
 
 const { mdAndUp, smAndDown } = useDisplay()
+
+async function fetchPendingCount() {
+  try {
+    const data = await $fetch('/api/appointments/stats')
+    pendingCount.value = data.Pending || 0
+  } catch (error) {
+    console.error('Failed to fetch pending count:', error)
+  }
+}
+
+onMounted(fetchPendingCount)
+
+// Refresh count on route change to keep it up to date
+watch(() => route.path, fetchPendingCount)
 
 const navIcon = computed(() =>
   drawer.value ? 'mdi-close' : 'mdi-menu'
