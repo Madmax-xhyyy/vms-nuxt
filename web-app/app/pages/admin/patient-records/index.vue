@@ -73,8 +73,19 @@
       title="Patient Record Details"
       mode="view"
       @close="dialogView = false"
-      @edit="dialogView = false"
+      @edit="handleDialogEdit()"
       @delete="dialogDelete = true"
+    />
+  </v-dialog>
+
+   <!--EDIT DIALOG -->
+  <v-dialog v-model="dialogEdit" max-width="700" persistent>
+    <PatientRecordForm
+      title="Edit Patient Record"
+      v-model:form="form"
+      mode="edit"
+      @submit:update=""
+      @cancel="dialogEdit = false"
     />
   </v-dialog>
 
@@ -114,6 +125,7 @@ const headers = [
 ];
 
 const dialogView = ref(false);
+const dialogEdit = ref(false);
 const dialogDelete = ref(false);
 const disabledDelete = ref(false);
 
@@ -157,6 +169,10 @@ async function submitDelete() {
   }
 }
 
+function handleDialogEdit() {
+  dialogView.value = false;
+  dialogEdit.value = true;
+}
 
 function handleRowClick(_: any, data: any) {
   Object.assign(form.value, JSON.parse(JSON.stringify(data.item)));

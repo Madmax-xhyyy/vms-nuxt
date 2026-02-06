@@ -5,7 +5,7 @@ declare type TProduct = {
   category: string;
   stock: number;
   image: string;
-  status: string;
+  status?: string;
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string;

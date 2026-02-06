@@ -10,7 +10,7 @@
           </div>
         </v-col>
 
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="6">
           <v-text-field
             v-model="search"
             label="Search"
@@ -21,12 +21,12 @@
           />
         </v-col>
 
-        <v-col cols="12" sm="4">
+        <v-col cols="12" sm="2">
           <v-btn
               color="primary"
               variant="tonal"
               size="large"
-              class="w-100 w-sm-auto mb-2 mr-2 mb-sm-0"
+              class="w-100 w-sm-auto mb-2 mb-sm-0"
               @click="handleDialogAdd"
             >
               <v-icon size="16" class="mr-2">mdi-plus</v-icon>
