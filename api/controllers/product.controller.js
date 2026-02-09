@@ -7,7 +7,7 @@ export function useProductController() {
   async function getAll(req, res) {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const status = req.query.status;
+    const status = req.query.status || "active";
     const search = req.query.search ?? "";
     try {
       const items = await useProductRepo().getAll({ page, limit, status, search });
@@ -61,6 +61,7 @@ export function useProductController() {
       res.status(200).json({ message });
       return;
     } catch (error) {
+      console.error("Error adding product:", error);
       res
         .status(500)
         .json({ message: error.message || "Failed to add product" });

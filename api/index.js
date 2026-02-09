@@ -25,7 +25,8 @@ app.use(cors({
   origin: "http://localhost:3000",
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Health Check Route
 app.get("/health", (req, res) => {
@@ -38,6 +39,7 @@ import useAuthRoute from "./routes/auth.route.js";
 import useProductRoute from "./routes/product.route.js";
 import useAppointmentRoute from "./routes/appointment.route.js";
 import usePatientRecordRoute from "./routes/patient.record.route.js";
+import useUploadRoute from "./routes/upload.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -65,7 +67,7 @@ connectToDB().then(async () => {
   app.use("/api/appointments", useAppointmentRoute());
   app.use("/api/products", useProductRoute());
   app.use("/api/patient-records", usePatientRecordRoute());
-
+  app.use("/api/upload", useUploadRoute());
 
   // Error handling middleware (must be last)
   app.use(errorHandler);

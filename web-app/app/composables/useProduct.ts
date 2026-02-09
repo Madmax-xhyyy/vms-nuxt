@@ -8,7 +8,7 @@ export function useProduct() {
     status: "",
   });
 
-  function getAll({ page = 1, limit = 10, status = "", search = "" } = {}) {
+  function getAll({ page = 1, limit = 10, status = "active", search = "" } = {}) {
     return $fetch<Record<string, any>>(`/api/products`, {
       method: "GET",
       query: {

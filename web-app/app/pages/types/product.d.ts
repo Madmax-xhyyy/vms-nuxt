@@ -4,7 +4,7 @@ declare type TProduct = {
   price: number;
   category: string;
   stock: number;
-  image: string;
+  image?: string;
   status?: string;
   createdAt?: string;
   updatedAt?: string;

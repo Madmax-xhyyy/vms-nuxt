@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { ObjectId } from "mongodb";
 
 export const schemaProduct = Joi.object({
   _id: Joi.any().optional(),
@@ -6,9 +7,9 @@ export const schemaProduct = Joi.object({
   price: Joi.number().required(),
   category: Joi.string().trim().min(1).max(200).required(),
   stock: Joi.number().required(),
-  image: Joi.string().trim().min(1).max(200).required(),
+  image: Joi.string().optional().allow("", null),
   status: Joi.string().trim().max(200).optional().allow("", null),
-  createdAt: Joi.date().required(),
+  createdAt: Joi.date().optional(),
 });
 
 export const schemaProductUpdateById = Joi.object({
@@ -17,7 +18,7 @@ export const schemaProductUpdateById = Joi.object({
   price: Joi.number().required(),
   category: Joi.string().trim().min(1).max(200).required(),
   stock: Joi.number().required(),
-  image: Joi.string().trim().min(1).max(200).required(),
+  image: Joi.string().optional(),
   status: Joi.string().trim().max(200).optional().allow("", null),
   updatedAt: Joi.date().required(),
 });

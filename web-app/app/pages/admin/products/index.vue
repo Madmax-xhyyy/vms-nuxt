@@ -80,6 +80,7 @@
   <v-dialog v-model="dialogAdd" max-width="700" persistent>
     <ProductForm
       v-model:form="form"
+      v-model:file="imageFile"
       @submit:add="submitAdd()"
       @cancel="dialogAdd = false"
     />
@@ -91,7 +92,7 @@
       title="Product Details"
       mode="view"
       @cancel="dialogView = false"
-      @edit="dialogView = false"
+      @edit="handleDialogEdit()"
       @delete="dialogDelete = true"
     />
   </v-dialog>
@@ -150,6 +151,7 @@ const disabledDelete = ref(false);
 const { product, getAll, deleteById } = useProduct();
 
 const form = ref(product);
+const imageFile = ref<File | null>(null);
 const items = ref<Array<TProduct>>([]);
 
 const{ 
@@ -175,6 +177,7 @@ watchEffect(() => {
 const loadingProduct = computed(() => statusProduct.value === "pending");
 
  const handleDialogAdd = () => {
+  resetForm();
   dialogAdd.value = true;
 };
 
@@ -186,20 +189,43 @@ function resetForm() {
     stock: 0,
     image: "",
   };
+  imageFile.value = null;
 }
 
 async function submitAdd() {
-  try {
-    await $fetch("/api/products", {
+  let imageUrl = "";
+
+  if (imageFile.value) {
+    const formData = new FormData();
+    formData.append("image", imageFile.value);
+
+    const uploadRes = await $fetch<{ imageUrl: string }>("/api/upload", {
       method: "POST",
-      body: form.value,
+      body: formData,
     });
-    dialogAdd.value = false;
-    resetForm();
-    await _getAllProducts();
-  } catch (error) {
-    console.error("Error:", error);
+
+    imageUrl = uploadRes.imageUrl;
   }
+
+  try{
+    await $fetch("/api/products", {
+    method: "POST",
+    body: {
+      ...form.value,
+      image: imageUrl,
+    },
+  });
+  dialogAdd.value = false;
+  resetForm();
+  await _getAllProducts();
+  } catch (error) {
+    console.error('Failed to add:', error);
+  }
+}
+
+function handleDialogEdit() {
+  dialogView.value = false;
+  dialogEdit.value = true;
 }
 
 async function submitDelete() {
@@ -214,8 +240,6 @@ async function submitDelete() {
     console.error('Failed to delete:', error);
   }
 }
-
-
 
 
 function handleRowClick(_: any, data: any) {

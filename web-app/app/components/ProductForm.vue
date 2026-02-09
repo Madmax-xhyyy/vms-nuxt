@@ -50,19 +50,26 @@
             />
           </v-col>
         </v-row>
-
         <v-row>
           <v-col cols="12" md="6">
             <v-file-input
-              v-model="formModel.image"
               label="Image"
               variant="outlined"
-              :rules="[requiredRule]"
+              accept="image/*"
+              prepend-icon="mdi-camera"
+              @update:model-value="handleImage"
             />
+
+            <v-img
+              v-if="formModel.image"
+              :src="formModel.image"
+              max-height="200"
+              class="mt-2 rounded-lg border"
+              cover
+            ></v-img>
           </v-col>
         </v-row>
       </v-form>
-    
     </v-card-text>
 
     <!-- Action -->
@@ -97,6 +104,23 @@
                   More actions
                 </v-btn>
               </template>
+              <v-list class="pa-0">
+                <v-list-item
+                  @click="emits('edit')"
+                >
+                  <v-list-item-title class="text-subtitle-2">
+                    Edit
+                  </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                  @click="emits('delete')"
+                  class="bg-red-lighten-1"
+                >
+                  <v-list-item-title class="text-subtitle-2">
+                    Delete
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
             </v-menu>
           </v-col>
         </template>
@@ -163,7 +187,14 @@ const localProps = defineProps({
   },
 });
 
-const emits = defineEmits(["cancel", "close", "delete", "edit", "submit:add", "submit:update"]);
+const emits = defineEmits([
+  "cancel", 
+  "close", 
+  "delete", 
+  "edit", 
+  "submit:add", 
+  "submit:update"
+]);
 
 
 const formModel = defineModel("form", {
@@ -177,6 +208,28 @@ const requiredRule = (v: any) => {
   if (Array.isArray(v)) return v.length > 0 || "Required.";
   return !!v || "Required.";
 };
+
+const imageFile = defineModel("file", {
+  type: Object as PropType<File | null>,
+  default: null,
+});
+
+function handleImage(file: any) {
+  const selected = Array.isArray(file) ? file[0] : file;
+  imageFile.value = selected || null;
+  
+  // Optional: show a local preview
+  if (imageFile.value) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      formModel.value.image = reader.result as string; // temporary preview
+    };
+    reader.readAsDataURL(imageFile.value);
+  } else {
+    formModel.value.image = "";
+  }
+}
+
 
 const categories = ref([
   "Food",

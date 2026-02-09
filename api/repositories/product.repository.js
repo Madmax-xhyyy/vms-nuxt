@@ -35,7 +35,7 @@ export function useProductRepo() {
   async function getAll({
     page = 1,
     limit = 10,
-    status,
+    status = "active",
     search = "",
   } = {}) {
     page = page > 0 ? page - 1 : page;
