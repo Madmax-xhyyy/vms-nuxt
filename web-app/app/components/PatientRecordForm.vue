@@ -1,13 +1,11 @@
 <template>
   <v-card width="100%" elevation="0">
-    <!-- HEADER -->
-    <v-toolbar color="grey-lighten-4 px-6" density="compact">
-      <v-toolbar-title class="text-body-1 font-weight-bold">
-        Edit Patient Record
-      </v-toolbar-title>
-    </v-toolbar>
+    <!-- Header -->
+    <v-card-title class="text-center bg-primary py-4" >
+      <span class="text-h6 font-weight-bold">{{ localProps.title }}</span>
+    </v-card-title>
 
-    <!-- BODY -->
+    <!-- Body -->
     <v-card-text style="max-height: 75vh; overflow-y: auto" class="pa-4">
       <v-form v-model="valid">
 
@@ -24,6 +22,7 @@
                 v-model="formModel.ownerName"
                 variant="outlined"
                 density="comfortable"
+                :rules="[rules.required]"
               />
             </v-col>
 
@@ -33,6 +32,7 @@
                 v-model="formModel.ownerEmail"
                 variant="outlined"
                 density="comfortable"
+                :rules="[rules.required, rules.email]"
               />
             </v-col>
 
@@ -42,6 +42,7 @@
                 v-model="formModel.ownerPhone"
                 variant="outlined"
                 density="comfortable"
+                :rules="[rules.required]"
               />
             </v-col>
 
@@ -51,6 +52,7 @@
                 v-model="formModel.ownerAddress"
                 variant="outlined"
                 density="comfortable"
+                :rules="[rules.required]"
               />
             </v-col>
           </v-row>
@@ -74,7 +76,7 @@
                 size="small"
                 color="red"
                 variant="text"
-                @click=""
+                @click="removePet(index)"
               />
             </v-col>
           </v-row>
@@ -85,6 +87,7 @@
                 label="Pet Name"
                 v-model="pet.petName"
                 variant="outlined"
+                :rules="[rules.required]"
               />
             </v-col>
 
@@ -93,24 +96,30 @@
                 label="Age"
                 v-model="pet.petAge"
                 variant="outlined"
+                :rules="[rules.required]"
               />
             </v-col>
 
             <v-col cols="12" md="6">
               <v-select
-                label="Type"
-                :items="petTypes"
-                v-model="pet.petType"
-                variant="outlined"
-              />
+              v-model="pet.petType"
+              label="Pet Type"
+              variant="outlined"
+              :items="petTypeKeys"
+              @update:model-value="onPetTypeChange(index)"
+              :rules="[rules.required]"
+            />
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-text-field
-                label="Breed"
-                v-model="pet.petBreed"
-                variant="outlined"
-              />
+              <v-select
+              v-model="pet.petBreed"
+              label="Pet Breed"
+              variant="outlined"
+              :items="petBreeds(pet.petType as any)"
+              :disabled="!pet.petType"
+              :rules="[rules.required]"
+            />
             </v-col>
           </v-row>
         </div>
@@ -120,7 +129,7 @@
           prepend-icon="mdi-plus"
           variant="outlined"
           class="mb-4"
-          @click=""
+          @click="addPet"
         >
           Add Pet
         </v-btn>
@@ -152,11 +161,26 @@
             variant="flat"
             color="primary"
             class="text-none"
-            size="48"
+            height="48"
             @click="emits('submit:update')"
             :disabled="!valid"
           >
             Submit Update
+          </v-btn>
+        </v-col>
+
+        <v-col v-if="localProps.mode === 'add'" cols="6">
+          <v-btn
+            tile
+            block
+            variant="flat"
+            color="primary"
+            class="text-none"
+            height="48"
+            @click="emits('submit:add')"
+            :disabled="!valid"
+          >
+            Submit Add
           </v-btn>
         </v-col>
       </v-row>
@@ -169,11 +193,11 @@
 const localProps = defineProps({
   title: {
     type: String,
-    default: "Add Patient Record",
+    default: "Edit Patient Record",
   },
   mode: {
     type: String,
-    default: "add",
+    default: "edit",
   },
 });
 
@@ -188,7 +212,32 @@ const emits = defineEmits([
 
 const valid = ref(false);
 
-const petTypes = ["Dog", "Cat", "Bird", "Other"];
+const rules = {
+  required: (v: any) => !!v || "Required",
+  email: (v: string) => /.+@.+\..+/.test(v) || "Invalid email",
+};
+
+const { petTypeKeys, petBreeds } = useAppointment();
+
+function addPet() {
+  formModel.value.pets.push({
+    petName: "",
+    petType: null,
+    petBreed: "",
+    petAge: "",
+    history: [],
+  });
+}
+
+function removePet(index: number) {
+  formModel.value.pets.splice(index, 1);
+}
+
+function onPetTypeChange(index: number) {
+  if (formModel.value.pets[index]) {
+    formModel.value.pets[index].petBreed = "";
+  }
+}
 
 const formModel = defineModel("form", {
   type: Object as PropType<TPatientRecord>,

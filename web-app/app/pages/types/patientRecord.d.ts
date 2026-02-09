@@ -8,7 +8,7 @@ declare type TVisit = {
 
 declare type TPet = {
   petName: string;
-  petType: string; // could also be enum like PetType
+  petType: PetType; // changed from string to PetType
   petBreed: string;
   petAge: string;
   history: TVisit[];

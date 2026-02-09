@@ -96,6 +96,17 @@
     />
   </v-dialog>
 
+  <!--EDIT DIALOG -->
+  <v-dialog v-model="dialogEdit" max-width="700" persistent>
+    <ProductForm
+      title="Edit Product"
+      v-model:form="form"
+      mode="edit"
+      @submit:update=""
+      @cancel="dialogEdit = false"
+    />
+  </v-dialog>
+
    <!-- DELETE DIALOG -->
   <v-dialog v-model="dialogDelete" width="450" persistent>
     <ConfirmationPrompt
@@ -132,6 +143,7 @@ const headers = [
 ];
 
 const dialogView = ref(false);
+const dialogEdit = ref(false);
 const dialogDelete = ref(false);
 const disabledDelete = ref(false);
 
@@ -202,6 +214,8 @@ async function submitDelete() {
     console.error('Failed to delete:', error);
   }
 }
+
+
 
 
 function handleRowClick(_: any, data: any) {

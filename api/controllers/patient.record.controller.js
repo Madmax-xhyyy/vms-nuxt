@@ -83,8 +83,11 @@ export function usePatientRecordController() {
       });
     }
 
+    // eslint-disable-next-line no-unused-vars
+    const { _id, createdAt, updatedAt, deletedAt, ...updateData } = req.body;
+
     try {
-      const message = await _updateById(req.params.id, req.body);
+      const message = await _updateById(req.params.id, updateData);
       res.status(200).json({ message });
     } catch (error) {
       res.status(500).json({

@@ -84,7 +84,7 @@
       title="Edit Patient Record"
       v-model:form="form"
       mode="edit"
-      @submit:update=""
+      @submit:update="submitUpdate()"
       @cancel="dialogEdit = false"
     />
   </v-dialog>
@@ -129,7 +129,7 @@ const dialogEdit = ref(false);
 const dialogDelete = ref(false);
 const disabledDelete = ref(false);
 
-const { patientRecord, getAllPatientRecords, deleteById } = usePatientRecord();
+const { patientRecord, getAllPatientRecords, updateById, deleteById } = usePatientRecord();
 
 const form = ref(patientRecord);
 const items = ref<Array<TPatientRecord>>([]);
@@ -155,6 +155,18 @@ watchEffect(() => {
 });
 
 const loadingPatientRecord = computed(() => statusPatientRecord.value === "pending");
+
+async function submitUpdate() {
+  if (!form.value._id) return;
+  
+  try {
+    await updateById(form.value._id, form.value);
+    dialogEdit.value = false;
+    await _getAllPatientRecords();
+  } catch (error) {
+    console.error('Failed to update:', error);
+  }
+}
 
 async function submitDelete() {
   if (!form.value._id) return;

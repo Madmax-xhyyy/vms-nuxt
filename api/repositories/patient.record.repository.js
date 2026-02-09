@@ -44,10 +44,10 @@ export function usePatientRecordRepo() {
   }
 
   // ✏️ Update existing patient record
-  async function update(value) {
+  async function updateById(id, value) {
     try {
       await collection.updateOne(
-        { _id: new ObjectId(value._id) },
+        { _id: new ObjectId(id) },
         {
           $set: {
             ...value,
@@ -159,7 +159,7 @@ export function usePatientRecordRepo() {
     findByEmail,
     getById,
     add,
-    update,
+    updateById,
     getAll,
     createPatientRecordIndexes,
     deleteById,

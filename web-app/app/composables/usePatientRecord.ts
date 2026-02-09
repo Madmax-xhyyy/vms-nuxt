@@ -26,6 +26,13 @@ export function usePatientRecord() {
     });
   }
 
+  function updateById(id: string, data: TPatientRecord) {
+    return $fetch<Record<string, any>>(`/api/patient-records/id/${id}`, {
+      method: "PATCH",
+      body: data,
+    });
+  }
+
   function deleteById(id: string) {
     return $fetch<Record<string, any>>(`/api/patient-records/id/${id}`, {
       method: "DELETE",
@@ -35,6 +42,7 @@ export function usePatientRecord() {
   return {
     getAllPatientRecords,
     getById,
+    updateById,
     deleteById,
     patientRecord,
   }
