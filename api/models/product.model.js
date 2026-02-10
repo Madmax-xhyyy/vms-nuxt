@@ -20,13 +20,13 @@ export const schemaProductUpdateById = Joi.object({
   stock: Joi.number().required(),
   image: Joi.string().optional(),
   status: Joi.string().trim().max(200).optional().allow("", null),
-  updatedAt: Joi.date().required(),
+  updatedAt: Joi.date().optional(),
 });
 
 export const schemaProductUpdateStockById = Joi.object({
   _id: Joi.any().optional(),
   stock: Joi.number().required(),
-  updatedAt: Joi.date().required(),
+  updatedAt: Joi.date().optional(),
 });
 
 export function modelProduct(value) {

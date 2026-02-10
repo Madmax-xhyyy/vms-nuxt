@@ -17,6 +17,7 @@
               label="Name"
               variant="outlined"
               :rules="[requiredRule]"
+              :readonly="localProps.mode === 'view'"
             />
           </v-col>
 
@@ -26,6 +27,7 @@
               label="Price"
               variant="outlined"
               :rules="[requiredRule]"
+              :readonly="localProps.mode === 'view'"
             />
           </v-col>
         </v-row>
@@ -38,6 +40,7 @@
               label="Category"
               variant="outlined"
               :rules="[requiredRule]"
+              :readonly="localProps.mode === 'view'"
             />
           </v-col>
 
@@ -47,12 +50,14 @@
               label="Stock"
               variant="outlined"
               :rules="[requiredRule]"
+              :readonly="localProps.mode === 'view'"
             />
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" md="6">
             <v-file-input
+              v-if="localProps.mode !== 'view'"
               label="Image"
               variant="outlined"
               accept="image/*"
@@ -95,7 +100,7 @@
                 <v-btn
                   block
                   variant="flat"
-                  color="black"
+                  color="primary"
                   class="text-none"
                   height="48"
                   v-bind="props"

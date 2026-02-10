@@ -151,9 +151,9 @@
                 @click="emits('edit')"
               >
                 <v-list-item-title class="text-subtitle-2">
-              Edit
-            </v-list-item-title>
-          </v-list-item>
+                Edit
+              </v-list-item-title>
+            </v-list-item>
 
 
           <v-list-item

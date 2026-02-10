@@ -102,10 +102,15 @@ export function useProductRepo() {
       );
     }
 
+    // Prevent updating immutable field _id
+    delete value._id;
+
     try {
       await collection.updateOne({ _id: id }, { $set: value });
       return "Successfully updated product";
-    } catch (error) { }
+    } catch (error) {
+      throw new Error("Failed to update product: " + error.message);
+    }
   }
 
   async function updateStockById(id, value) {

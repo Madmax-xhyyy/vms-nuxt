@@ -88,10 +88,10 @@
 
   <v-dialog v-model="dialogView" max-width="700" persistent>
     <ProductForm
-      v-model="form"
+      v-model:form="form"
       title="Product Details"
       mode="view"
-      @cancel="dialogView = false"
+      @close="dialogView = false"
       @edit="handleDialogEdit()"
       @delete="dialogDelete = true"
     />
@@ -103,7 +103,7 @@
       title="Edit Product"
       v-model:form="form"
       mode="edit"
-      @submit:update=""
+      @submit:update="submitUpdate()"
       @cancel="dialogEdit = false"
     />
   </v-dialog>
@@ -148,7 +148,7 @@ const dialogEdit = ref(false);
 const dialogDelete = ref(false);
 const disabledDelete = ref(false);
 
-const { product, getAll, deleteById } = useProduct();
+const { product, getAll, updateById, deleteById } = useProduct();
 
 const form = ref(product);
 const imageFile = ref<File | null>(null);
@@ -226,6 +226,39 @@ async function submitAdd() {
 function handleDialogEdit() {
   dialogView.value = false;
   dialogEdit.value = true;
+}
+
+async function submitUpdate() {
+  const productId = form.value._id;
+  if (!productId) return;
+
+  let imageUrl = "";
+
+  if (imageFile.value) {
+    const formData = new FormData();
+    formData.append("image", imageFile.value);
+
+    const uploadRes = await $fetch<{ imageUrl: string }>('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    imageUrl = uploadRes.imageUrl;
+  }
+
+  try {
+    const payload = { ...form.value };
+    if (imageUrl) {
+      payload.image = imageUrl;
+    }
+
+    await updateById(productId, payload);
+    dialogEdit.value = false;
+    resetForm();
+    await _getAllProducts();
+  } catch (error) {
+    console.error('Failed to update:', error);
+  }
 }
 
 async function submitDelete() {

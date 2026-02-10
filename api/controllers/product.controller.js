@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { schemaProduct, schemaProductUpdateStockById } from "../models/product.model.js";
+import { schemaProduct, schemaProductUpdateById, schemaProductUpdateStockById } from "../models/product.model.js";
 import { useProductRepo } from "../repositories/product.repository.js";
 
 export function useProductController() {
@@ -26,7 +26,7 @@ export function useProductController() {
       id: Joi.string().hex().length(24).required(),
     });
 
-    const { error } = validation.validate(req.params.id);
+    const { error } = validation.validate(req.params);
     if (error) {
       res
         .status(400)
@@ -70,45 +70,43 @@ export function useProductController() {
   }
 
   async function updateById(req, res) {
-    // 1️⃣ validate params ONLY
-    const paramSchema = Joi.object({
-      id: Joi.string().hex().length(24).required(),
-    });
+    const { id } = req.params;
 
-    const { error: paramError } = paramSchema.validate(req.params);
-    if (paramError) {
-      return res.status(400).json({
-        message: "Invalid ID",
-        errors: paramError.details,
-      });
+    // Validate ID
+    const { error: idError } = Joi.string()
+      .hex()
+      .length(24)
+      .required()
+      .validate(id);
+    if (idError) {
+      res.status(400).json({ message: "Invalid ID details" });
+      return;
     }
 
-    // 2️⃣ validate body ONLY
-    const bodySchema = Joi.object({
-      name: Joi.string().trim().min(1).max(200).required(),
-      stock: Joi.number().required(),
-      status: Joi.string().trim().max(200).optional(),
-    });
+    const { value, error } = schemaProductUpdateById.validate({
+      ...req.body,
+      updatedAt: new Date()
+    }, { stripUnknown: true });
 
-    const { error: bodyError } = bodySchema.validate(req.body);
-    if (bodyError) {
-      return res.status(400).json({
-        message: "Validation failed",
-        errors: bodyError.details,
-      });
+    if (error) {
+      res
+        .status(400)
+        .json({ message: "Validation failed", errors: error.details });
+      return;
     }
 
     try {
       const message = await useProductRepo().updateById(
-        req.params.id,
-        req.body,
+        id,
+        value
       );
-
       res.status(200).json({ message });
     } catch (error) {
-      res.status(500).json({
-        message: error.message || "Failed to update product",
-      });
+      console.error(error);
+      res
+        .status(500)
+        .json({ message: error.message || "Failed to update product" });
+      return;
     }
   }
 

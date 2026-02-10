@@ -20,14 +20,15 @@ export function useProduct() {
     });
   }
 
-  function updateById(id: string) {
-    return $fetch<Record<string, any>>(`/api/products/${id}`, {
-      method: "PUT",
+  function updateById(id: string, data: Partial<TProduct>) {
+    return $fetch<Record<string, any>>(`/api/products/id/${id}`, {
+      method: "PATCH",
+      body: data,
     });
   }
 
   function deleteById(id: string) {
-    return $fetch<Record<string, any>>(`/api/products/${id}`, {
+    return $fetch<Record<string, any>>(`/api/products/id/${id}`, {
       method: "DELETE",
     });
   }
