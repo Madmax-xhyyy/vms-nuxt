@@ -40,6 +40,7 @@ import useProductRoute from "./routes/product.route.js";
 import useAppointmentRoute from "./routes/appointment.route.js";
 import usePatientRecordRoute from "./routes/patient.record.route.js";
 import useUploadRoute from "./routes/upload.route.js";
+import useSystemInfoRoute from "./routes/system.info.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -68,6 +69,7 @@ connectToDB().then(async () => {
   app.use("/api/products", useProductRoute());
   app.use("/api/patient-records", usePatientRecordRoute());
   app.use("/api/upload", useUploadRoute());
+  app.use("/api/system-info", useSystemInfoRoute());
 
   // Error handling middleware (must be last)
   app.use(errorHandler);
