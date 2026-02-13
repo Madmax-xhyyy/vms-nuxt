@@ -18,15 +18,15 @@ export function useSystemInfo() {
   })
 
   function getData() {
-    return $fetch<TSystemInfo>(`/api/system-info`, {
+    return $fetch<Record<string, any>>(`/api/system-info`, {
       method: "GET",
     })
   }
 
-  function updateData(id: string, data: Partial<TSystemInfo>) {
-    return $fetch<TSystemInfo>(`/api/system-info/id/${id}`, {
+  function updateData() {
+    return $fetch<Record<string, any>>(`/api/system-info`, {
       method: "PATCH",
-      body: data,
+      body: systemInfo.value,
     })
   }
 
@@ -35,5 +35,4 @@ export function useSystemInfo() {
     getData,
     updateData
   }
-
 }

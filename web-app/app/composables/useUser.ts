@@ -7,15 +7,15 @@ export function useUser() {
   });
 
   function getData() {
-    return $fetch<TUser>(`/api/user`, {
+    return $fetch<Record<string, any>>(`/api/user`, {
       method: "GET",
     })
   }
 
-  function updateData(id: string, data: Partial<TUser>) {
-    return $fetch<TUser>(`/api/user/id/${id}`, {
+  function updateData() {
+    return $fetch<Record<string, any>>(`/api/user`, {
       method: "PATCH",
-      body: data,
+      body: user.value,
     })
   }
 
