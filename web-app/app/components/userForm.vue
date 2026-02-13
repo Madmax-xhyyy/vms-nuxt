@@ -7,12 +7,12 @@
     <v-divider />
 
     <v-card-text>
-      <v-form v-model="formValid" mode="view">
+      <v-form v-model="formValid">
         <v-row>
           <v-col cols="12" md="6">
             <v-text-field
-              v-model="form.name"
-              label="Full Name"
+              v-model="formModel.firstName"
+              label="First Name"
               variant="outlined"
               density="comfortable"
               class="mb-3"
@@ -20,7 +20,27 @@
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
-              v-model="form.email"
+              v-model="formModel.middleName"
+              label="Middle Name"
+              variant="outlined"
+              density="comfortable"
+              class="mb-3"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="formModel.lastName"
+              label="Last Name"
+              variant="outlined"
+              density="comfortable"
+              class="mb-3"
+            />
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-text-field
+              v-model="formModel.email"
               label="Email Address"
               variant="outlined"
               density="comfortable"
@@ -77,12 +97,10 @@ const emits = defineEmits([
 ]);
 
 const formValid = ref(false);
-const form = ref({
-  name: '',
-  email: '',
+const formModel = defineModel("form", {
+  type: Object as PropType<TUser>,
+  default: () => useUser().user,
 });
 
-async function submitUpdate() {
-  console.log('Form submitted:', form.value);
-}
+
 </script>

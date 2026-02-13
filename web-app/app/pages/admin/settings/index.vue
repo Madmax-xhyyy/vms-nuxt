@@ -102,9 +102,9 @@
   <v-dialog v-model="dialogEditSystemInfo" max-width="700" persistent>
     <SystemInfoForm
       title="Update System Information"
-      v-model:form="form"
+      v-model:form="formSystemInfo"
       mode="update"
-      @submit:update="submitUpdate()"
+      @submit:update="submitUpdateSystemInfo()"
       @cancel="dialogEditSystemInfo = false"
     />
   </v-dialog>
@@ -113,9 +113,9 @@
   <v-dialog v-model="dialogEditUserInfo" max-width="700" persistent>
     <userForm
       title="Update User Information"
-      v-model:form="form"
+      v-model:form="formUserInfo"
       mode="update"
-      @submit:update="submitUpdate()"
+      @submit:update="submitUpdateUserInfo()"
       @cancel="dialogEditUserInfo = false"
     />
   </v-dialog>
@@ -130,8 +130,11 @@ definePageMeta({
 const dialogEditSystemInfo = ref(false);
 const dialogEditUserInfo = ref(false);
 
-const { systemInfo, updateData } = useSystemInfo();
-const form = ref(systemInfo);
+const { systemInfo, updateData: updateSystemInfo } = useSystemInfo();
+const formSystemInfo = ref(systemInfo);
+
+const { user, updateData: updateUser } = useUser();
+const formUserInfo = ref(user);
 
 // Form validation states
 const profileValid = ref(false);
@@ -155,9 +158,18 @@ const timezones = [
   "Asia/Tokyo",
 ];
 
-async function submitUpdate() {
+async function submitUpdateSystemInfo() {
   if (systemInfo.value._id) {
-    await updateData(systemInfo.value._id, form.value);
+    await updateSystemInfo(systemInfo.value._id, formSystemInfo.value);
+    dialogEditSystemInfo.value = false;
   }
 }
+
+async function submitUpdateUserInfo() {
+  if (user.value._id) {
+    await updateUser(user.value._id, formUserInfo.value);
+    dialogEditUserInfo.value = false;
+  }
+}
+
 </script>
