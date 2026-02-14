@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import { db } from "../index.js";
-import { schemaUser, modelUser } from "../models/user.model.js";
+import { schemaUser, modelUser, schemaUserUpdate } from "../models/user.model.js";
 import { paginate } from "../utils/paginate.util.js";
 import { logger } from "../utils/logger.util.js";
 
@@ -102,7 +102,7 @@ export function useUserRepo() {
       throw new Error("Invalid Id");
     }
 
-    const { error } = schemaUser.validate(value);
+    const { error } = schemaUserUpdate.validate(value);
     if (error) {
       throw new Error(
         "Validation failed: " + error.details.map((d) => d.message).join(", ")

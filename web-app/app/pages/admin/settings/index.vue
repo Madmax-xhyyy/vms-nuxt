@@ -30,7 +30,7 @@
                 <v-col cols="12" md="4">
                   <div class="text-caption text-grey">Full Name</div>
                   <div class="text-body-1 font-weight-medium">
-                    {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+                    {{ currentUser?.firstName }} {{ currentUser?.middleName }} {{ currentUser?.lastName }}
                   </div>
                 </v-col>
 
@@ -54,17 +54,17 @@
                 class="mt-6"
                 @click="dialogEditUserInfo = true"
               >
-                Edit Information
+                Edit
               </v-btn>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <!-- SYSTEM INFORMATION -->
+        <!-- CLINIC INFORMATION -->
         <v-col cols="12">
           <v-card elevation="2" rounded="lg">
             <v-card-title class="text-subtitle-1 font-weight-bold">
-              System Information
+              Clinic Information
             </v-card-title>
 
             <v-divider />
@@ -137,7 +137,7 @@
                 class="mt-6"
                 @click="dialogEditSystemInfo = true"
               >
-                Edit System Info
+                Edit
               </v-btn>
             </v-card-text>
           </v-card>

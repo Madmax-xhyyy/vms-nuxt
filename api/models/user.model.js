@@ -13,6 +13,19 @@ export const schemaUser = Joi.object({
   updatedAt: Joi.date().optional(),
 });
 
+export const schemaUserUpdate = Joi.object({
+  _id: Joi.any().optional(),
+  firstName: Joi.string().required(),
+  middleName: Joi.string().optional().allow("", null),
+  lastName: Joi.string().required(),
+  email: Joi.string().email().required(),
+  password: Joi.string().min(4).optional(),
+  role: Joi.string().optional().allow("", null),
+  status: Joi.string().optional().allow("", null),
+  createdAt: Joi.date().optional(),
+  updatedAt: Joi.date().optional(),
+});
+
 export function modelUser(value) {
   const { error } = schemaUser.validate(value);
 

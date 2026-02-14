@@ -1,6 +1,7 @@
 import { useUserRepo } from "../repositories/user.repository.js";
 import Joi from "joi";
-import { schemaUser } from "../models/user.model.js";
+import { schemaUser, schemaUserUpdate } from "../models/user.model.js";
+import { hashPassword } from "../utils/hash-password.util.js";
 
 export function useUserController() {
 
@@ -43,7 +44,7 @@ export function useUserController() {
       return;
     }
 
-    const { value, error } = schemaUser.validate({
+    const { value, error } = schemaUserUpdate.validate({
       ...req.body,
       updatedAt: new Date()
     }, { stripUnknown: true });
@@ -53,6 +54,11 @@ export function useUserController() {
         .status(400)
         .json({ message: "Validation failed", errors: error.details });
       return;
+    }
+
+    // Hash password if it's being updated
+    if (value.password) {
+      value.password = await hashPassword(value.password);
     }
 
     try {
