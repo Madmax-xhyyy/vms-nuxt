@@ -96,7 +96,7 @@ async function login() {
       },
     });
 
-    useCookie("admin", cookieConfig).value = data.user;
+    useCookie("user", cookieConfig).value = data.user;
 
     await navigateTo({ name: "admin-dashboard" });
   } catch (error) {

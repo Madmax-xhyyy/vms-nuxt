@@ -11,23 +11,31 @@ export function useSystemInfo() {
     faviconUrl: "",
     primaryColor: "",
     secondaryColor: "",
-    operatingHours: "",
+    operatingHours: [],
     footerText: "",
     privacyPolicy: "",
     termsAndConditions: "",
   })
 
-  function getData() {
-    return $fetch<Record<string, any>>(`/api/system-info`, {
+  async function getData() {
+    const data = await $fetch<TSystemInfo>(`/api/system-info`, {
       method: "GET",
     })
+    if (data) {
+      systemInfo.value = data
+    }
+    return data
   }
 
-  function updateData() {
-    return $fetch<Record<string, any>>(`/api/system-info`, {
+  async function updateData(id: string, updatePayload: Partial<TSystemInfo>) {
+    const data = await $fetch<TSystemInfo>(`/api/system-info/id/${id}`, {
       method: "PATCH",
-      body: systemInfo.value,
+      body: updatePayload,
     })
+    if (data) {
+      systemInfo.value = data
+    }
+    return data
   }
 
   return {

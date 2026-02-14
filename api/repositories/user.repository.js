@@ -67,11 +67,11 @@ export function useUserRepo() {
     try {
       id = new ObjectId(id);
     } catch (error) {
-      throw new Error("Invalid Id");
+      throw new Error("Invalid user Id");
     }
 
     try {
-      return await collection.findOne({});
+      return await collection.findOne({ _id: id });
     } catch (error) {
       throw new Error("Failed to get by id: " + error.message);
     }
@@ -110,16 +110,18 @@ export function useUserRepo() {
     }
 
     try {
-      await collection.updateOne({ _id: id }, { $set: value });
+      await collection.updateOne({ _id: id }, { $set: { ...value, updatedAt: new Date() } });
       return "Successfully updated user";
-    } catch (error) { }
+    } catch (error) {
+      throw new Error("Failed to update user: " + error.message);
+    }
   }
 
   async function deleteById(id) {
     try {
       id = new ObjectId(id);
     } catch (error) {
-      throw new Error("Invalid Id");
+      throw new Error("Invalid user Id");
     }
 
     try {

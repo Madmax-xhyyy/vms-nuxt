@@ -4,7 +4,7 @@ import { schemaSystemInfo, modelSystemInfo } from "../models/system.info.model.j
 import { logger } from "../utils/logger.util.js";
 
 export function useSystemInfoRepo() {
-  const collection = db.collection("system.info");
+  const collection = db.collection("clinic_info");
 
   if (!db) {
     console.log("Mongodb client is required");
@@ -14,12 +14,10 @@ export function useSystemInfoRepo() {
   async function createSystemInfoIndexes() {
     try {
       await collection.createIndexes([
-        { key: { status: 1 } },
         {
           key: {
             clinicName: "text",
             email: "text",
-            status: "text",
           },
           name: "systemInfoTextSearch",
         },

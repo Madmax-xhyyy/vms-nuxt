@@ -1,4 +1,6 @@
 export function useUser() {
+  const { cookieConfig } = useRuntimeConfig().public;
+  const currentUser = useState<TUser | null>("currentUser", () => null);
   const user = ref<TUser>({
     firstName: "",
     middleName: "",
@@ -6,22 +8,39 @@ export function useUser() {
     email: "",
   });
 
-  function getData() {
-    return $fetch<Record<string, any>>(`/api/user`, {
+  function getById(id: string) {
+    return $fetch<Record<string, any>>(`/api/user/id/${id}`, {
       method: "GET",
-    })
+    });
   }
 
-  function updateData() {
-    return $fetch<Record<string, any>>(`/api/user`, {
+  function updateById(id: string, data: Partial<TUser>) {
+    return $fetch<Record<string, any>>(`/api/user/id/${id}`, {
       method: "PATCH",
-      body: user.value,
-    })
+      body: data,
+    });
+  }
+
+  async function getCurrentUser() {
+    const user = useCookie("user", cookieConfig).value;
+    if (!user) return null;
+    try {
+      const _user = await $fetch<TUser>(`/api/user/id/${user}`, {
+        method: "GET",
+      });
+
+      currentUser.value = _user;
+      return _user;
+    } catch (error) {
+      console.log("Error fetching current user:", error);
+    }
   }
 
   return {
     user,
-    getData,
-    updateData
+    currentUser,
+    getCurrentUser,
+    getById,
+    updateById
   }
 }

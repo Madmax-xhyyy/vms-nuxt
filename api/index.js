@@ -41,6 +41,7 @@ import useAppointmentRoute from "./routes/appointment.route.js";
 import usePatientRecordRoute from "./routes/patient.record.route.js";
 import useUploadRoute from "./routes/upload.route.js";
 import useSystemInfoRoute from "./routes/system.info.route.js";
+import useUserRoute from "./routes/user.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -52,6 +53,7 @@ import { logger } from "./utils/logger.util.js";
 
 // Database Export & Setup Script
 connectToDB().then(async () => {
+  console.log(`[Database] Connecting to: ${MONGO_DB}`);
   db = client.db(MONGO_DB);
 
   try {
@@ -70,6 +72,7 @@ connectToDB().then(async () => {
   app.use("/api/patient-records", usePatientRecordRoute());
   app.use("/api/upload", useUploadRoute());
   app.use("/api/system-info", useSystemInfoRoute());
+  app.use("/api/user", useUserRoute());
 
   // Error handling middleware (must be last)
   app.use(errorHandler);

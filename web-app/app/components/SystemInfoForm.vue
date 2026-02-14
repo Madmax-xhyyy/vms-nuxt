@@ -113,16 +113,49 @@
           </v-col>
         </v-row>
 
-        <!-- Operating & Appointment Settings -->
+        <!-- Operating Hours -->
         <v-row>
-          <v-col cols="12" md="6">
-            <v-textarea
-              v-model="formModel.operatingHours"
-              label="Operating Hours"
-              variant="outlined"
-              rows="2"
-              :rules="[requiredRule]"
-            />
+          <v-col cols="12">
+            <div class="text-subtitle-1 font-weight-bold mb-4">Operating Hours</div>
+            <v-row v-for="(hours, index) in formModel.operatingHours" :key="hours.day" dense align="center" class="mb-4">
+              <v-col cols="12" sm="3">
+                <div class="text-body-2 font-weight-bold">{{ hours.day }}</div>
+              </v-col>
+              
+              <v-col cols="6" sm="3">
+                <v-text-field
+                  v-model="hours.open"
+                  label="Open Time"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :disabled="hours.isClosed"
+                  placeholder="08:00 AM"
+                />
+              </v-col>
+
+              <v-col cols="6" sm="3">
+                <v-text-field
+                  v-model="hours.close"
+                  label="Close Time"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :disabled="hours.isClosed"
+                  placeholder="05:00 PM"
+                />
+              </v-col>
+
+              <v-col cols="12" sm="3">
+                <v-checkbox
+                  v-model="hours.isClosed"
+                  label="Closed"
+                  hide-details
+                  density="compact"
+                  color="error"
+                />
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
 

@@ -10,7 +10,12 @@ declare type TSystemInfo = {
   faviconUrl?: string
   primaryColor?: string
   secondaryColor?: string
-  operatingHours: string
+  operatingHours: {
+    day: string
+    open: string
+    close: string
+    isClosed: boolean
+  }[]
   footerText?: string
   privacyPolicy?: string
   termsAndConditions?: string

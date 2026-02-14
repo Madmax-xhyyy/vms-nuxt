@@ -1,96 +1,144 @@
 <template>
+  <v-overlay v-model="loading" class="align-center justify-center" persistent>
+    <v-progress-circular indeterminate color="primary" />
+  </v-overlay>
+
   <v-row no-gutters>
     <v-col cols="12">
       <!-- PAGE HEADER -->
-      <v-row >
+      <v-row>
         <v-col cols="12">
           <div class="text-h5 font-weight-bold">Settings</div>
           <div class="text-caption text-grey">
-            Manage clinic preferences and system configuration
+            View and manage account and system configuration
           </div>
         </v-col>
       </v-row>
 
-      <v-row dense>
-        <!-- PROFILE SETTINGS -->
+      <v-row dense class="mt-2">
+        <!-- USER INFORMATION -->
         <v-col cols="12">
-          <v-card variant="elevated" border="thin">
+          <v-card elevation="2" rounded="lg">
             <v-card-title class="text-subtitle-1 font-weight-bold">
-              Profile Information
+              User Information
             </v-card-title>
 
             <v-divider />
 
-            <v-card-text class="mt-4">
-              <v-form v-model="profileValid" mode="view">
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="profile.name"
-                      label="Full Name"
-                      variant="outlined"
-                      density="comfortable"
-                      class="mb-3"
-                    />
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="profile.email"
-                      label="Email Address"
-                      variant="outlined"
-                      density="comfortable"
-                      class="mb-3"
-                    />
-                  </v-col>
-                </v-row>
-                
-                <v-btn
-                  variant="tonal"
-                  class="mr-2"
-                  @click="dialogEditUserInfo = true"
-                >
-                  Edit
-                </v-btn>
-              </v-form>
+            <v-card-text class="py-6">
+              <v-row>
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-grey">Full Name</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+                  </div>
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-grey">Email Address</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ currentUser?.email }}
+                  </div>
+                </v-col>
+
+                <v-col cols="12" md="4">
+                  <div class="text-caption text-grey">Role</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ currentUser?.role }}
+                  </div>
+                </v-col>
+              </v-row>
+
+              <v-btn
+                variant="tonal"
+                class="mt-6"
+                @click="dialogEditUserInfo = true"
+              >
+                Edit Information
+              </v-btn>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <!-- CLINIC SETTINGS -->
+        <!-- SYSTEM INFORMATION -->
         <v-col cols="12">
-          <v-card variant="elevated" border="thin">
+          <v-card elevation="2" rounded="lg">
             <v-card-title class="text-subtitle-1 font-weight-bold">
-              Clinic Information
+              System Information
             </v-card-title>
 
             <v-divider />
 
-            <v-card-text>
-              <v-form v-model="clinicValid">
-                <v-text-field
-                  v-model="clinic.name"
-                  label="Clinic Name"
-                  variant="outlined"
-                  density="comfortable"
-                  class="mb-3"
-                />
+            <v-card-text class="py-6">
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="text-caption text-grey">Clinic Name</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ systemInfo?.clinicName }}
+                  </div>
+                </v-col>
 
-                <v-text-field
-                  v-model="clinic.address"
-                  label="Clinic Address"
-                  variant="outlined"
-                  density="comfortable"
-                  class="mb-3"
-                />
+                <v-col cols="12" md="6">
+                  <div class="text-caption text-grey">Tagline</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ systemInfo?.tagline || "N/A" }}
+                  </div>
+                </v-col>
 
-                <v-btn
-                  variant="tonal"
-                  class="mt-3"
-                  @click="dialogEditSystemInfo = true"
-                >
-                  Edit
-                </v-btn>
-              </v-form>
+                <v-col cols="12" md="6">
+                  <div class="text-caption text-grey">Email Address</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ systemInfo?.email }}
+                  </div>
+                </v-col>
+
+                <v-col cols="12" md="6">
+                  <div class="text-caption text-grey">Phone Number</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ systemInfo?.phone }}
+                  </div>
+                </v-col>
+
+                <v-col cols="12">
+                  <div class="text-caption text-grey">Address</div>
+                  <div class="text-body-1 font-weight-medium">
+                    {{ systemInfo?.address }}
+                  </div>
+                </v-col>
+
+                <v-col cols="12">
+                  <div class="text-caption text-grey">Description</div>
+                  <div class="text-body-2 text-grey-darken-1">
+                    {{ systemInfo?.description || "No description set" }}
+                  </div>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-divider class="my-4" />
+                  <div class="text-subtitle-2 font-weight-bold mb-2">Operating Hours</div>
+                  <v-row dense>
+                    <v-col 
+                      v-for="hours in systemInfo?.operatingHours" 
+                      :key="hours.day"
+                      cols="12" sm="6" md="4"
+                    >
+                      <div class="d-flex justify-space-between text-body-2">
+                        <span class="font-weight-medium">{{ hours.day }}:</span>
+                        <span v-if="hours.isClosed" class="text-error">Closed</span>
+                        <span v-else>{{ hours.open }} - {{ hours.close }}</span>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+
+              <v-btn
+                variant="tonal"
+                class="mt-6"
+                @click="dialogEditSystemInfo = true"
+              >
+                Edit System Info
+              </v-btn>
             </v-card-text>
           </v-card>
         </v-col>
@@ -98,7 +146,7 @@
     </v-col>
   </v-row>
 
-  <!--EDIT DIALOG -->
+  <!-- SYSTEM EDIT DIALOG -->
   <v-dialog v-model="dialogEditSystemInfo" max-width="700" persistent>
     <SystemInfoForm
       title="Update System Information"
@@ -109,7 +157,7 @@
     />
   </v-dialog>
 
-  <!--EDIT DIALOG -->
+  <!-- USER EDIT DIALOG -->
   <v-dialog v-model="dialogEditUserInfo" max-width="700" persistent>
     <userForm
       title="Update User Information"
@@ -121,6 +169,7 @@
   </v-dialog>
 </template>
 
+
 <script setup lang="ts">
 definePageMeta({
   middleware: "auth",
@@ -130,46 +179,84 @@ definePageMeta({
 const dialogEditSystemInfo = ref(false);
 const dialogEditUserInfo = ref(false);
 
-const { systemInfo, updateData: updateSystemInfo } = useSystemInfo();
-const formSystemInfo = ref(systemInfo);
+const loading = ref(false);
 
-const { user, updateData: updateUser } = useUser();
-const formUserInfo = ref(user);
+// System Info
+const { systemInfo, updateData: updateSystemInfo, getData: getSystemInfo } = useSystemInfo();
+const formSystemInfo = ref({ ...systemInfo.value });
+
+// User Info
+const { updateById: updateUser, getCurrentUser, currentUser } = useUser();
+const formUserInfo = ref<TUser>({
+  firstName: "",
+  middleName: "",
+  lastName: "",
+  email: "",
+});
 
 // Form validation states
 const profileValid = ref(false);
 const clinicValid = ref(false);
 
-// Profile and clinic data (derived from systemInfo)
-const profile = computed(() => ({
-  name: systemInfo.value.clinicName || '',
-  email: systemInfo.value.email || '',
-}));
-
-const clinic = computed(() => ({
-  name: systemInfo.value.clinicName || '',
-  address: systemInfo.value.address || '',
-}));
-
-const timezones = [
-  "Asia/Manila",
-  "UTC",
-  "Asia/Singapore",
-  "Asia/Tokyo",
-];
-
-async function submitUpdateSystemInfo() {
-  if (systemInfo.value._id) {
-    await updateSystemInfo(systemInfo.value._id, formSystemInfo.value);
-    dialogEditSystemInfo.value = false;
+const fetchData = async () => {
+  loading.value = true;
+  try {
+    await Promise.all([
+      getCurrentUser(),
+      getSystemInfo(),
+    ]);
+    
+    // Sync forms with fetched data
+    if (systemInfo.value) {
+      formSystemInfo.value = { ...systemInfo.value };
+    }
+    
+    if (currentUser.value) {
+      formUserInfo.value = {
+        firstName: currentUser.value.firstName || "",
+        middleName: currentUser.value.middleName || "",
+        lastName: currentUser.value.lastName || "",
+        email: currentUser.value.email || "",
+      } as TUser;
+    }
+  } catch (error) {
+    console.error("Error fetching settings data:", error);
+  } finally {
+    loading.value = false;
   }
-}
+};
 
-async function submitUpdateUserInfo() {
-  if (user.value._id) {
-    await updateUser(user.value._id, formUserInfo.value);
+onMounted(fetchData);
+
+const submitUpdateUserInfo = async () => {
+  if (!currentUser.value?._id) return;
+  
+  loading.value = true;
+  try {
+    await updateUser(currentUser.value._id, formUserInfo.value);
+    await getCurrentUser(); // Refresh state
     dialogEditUserInfo.value = false;
+  } catch (error) {
+    console.error("Error updating user info:", error);
+  } finally {
+    loading.value = false;
   }
-}
+};
 
+const submitUpdateSystemInfo = async () => {
+  // Assuming systemInfo has an _id or we use a fixed identifier if it's singleton
+  // Based on useSystemInfo, updateData takes an id.
+  const id = (systemInfo.value as any)._id;
+  if (!id) return;
+
+  loading.value = true;
+  try {
+    await updateSystemInfo(id, formSystemInfo.value);
+    dialogEditSystemInfo.value = false;
+  } catch (error) {
+    console.error("Error updating system info:", error);
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
