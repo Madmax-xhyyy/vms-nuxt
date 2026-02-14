@@ -17,7 +17,7 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-img
-                src="https://images.unsplash.com/photo-1558944351-cfbe6aa0c214"
+                src="/images/image1.jpg"
                 aspect-ratio="1.2"
                 cover
                 rounded
@@ -53,7 +53,7 @@
           <v-row align="center">
             <v-col cols="12" md="6" order="2" order-md="1">
               <v-img
-                src="https://images.unsplash.com/photo-1601758123927-1966c57c7e07"
+                src="/images/image2.jpg"
                 aspect-ratio="1.3"
                 cover
                 rounded
@@ -89,7 +89,7 @@ definePageMeta({
 
 const services = [
   { title: 'Pet Checkups', desc: 'Routine health exams.', icon: 'mdi-stethoscope' },
-  { title: 'Vaccinations', desc: 'Protection from diseases.', icon: 'mdi-syringe' },
+  { title: 'Vaccinations', desc: 'Protection from diseases.', icon: 'mdi-pencil-plus-outline' },
   { title: 'Emergency Care', desc: 'Fast and reliable care.', icon: 'mdi-hospital-box' },
 ]
 </script>

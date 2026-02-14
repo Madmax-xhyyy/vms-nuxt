@@ -27,9 +27,9 @@ export function useSystemInfo() {
     return data
   }
 
-  async function updateData(id: string, updatePayload: Partial<TSystemInfo>) {
-    const data = await $fetch<TSystemInfo>(`/api/system-info/id/${id}`, {
-      method: "PATCH",
+  async function updateData(updatePayload: Partial<TSystemInfo>) {
+    const data = await $fetch<TSystemInfo>(`/api/system-info`, {
+      method: "POST",
       body: updatePayload,
     })
     if (data) {

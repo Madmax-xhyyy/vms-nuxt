@@ -21,8 +21,8 @@
 
           <v-divider vertical class="mx-2" />
 
-          <v-btn color="secondary" to="/admin/login" nuxt>
-            Admin Login
+          <v-btn to="/admin/login" nuxt>
+            <v-icon size="24" icon="mdi-account-circle-outline" />
           </v-btn>
         </div>
 

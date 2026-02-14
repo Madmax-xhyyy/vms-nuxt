@@ -1,6 +1,6 @@
 <template>
-  <v-container fluid class="fill-height d-flex align-center justify-center">
-    <v-card class="pa-6" max-width="420" width="100%" elevation="6">
+  <v-container fluid class="fill-height d-flex align-center justify-center login-bg">
+    <v-card class="pa-6 login-card" max-width="420" width="100%" elevation="12">
       <!-- Header -->
       <div class="text-center mb-6">
         <v-icon size="48" color="primary">mdi-shield-account</v-icon>
@@ -105,3 +105,17 @@ async function login() {
   }
 }
 </script>
+
+<style scoped>
+.login-bg {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/images/image4.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.login-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+}
+</style>

@@ -27,7 +27,7 @@ export const schemaSystemInfo = Joi.object({
   termsAndConditions: Joi.string().trim().allow("").optional(),
   updatedBy: Joi.any().optional(),
   createdAt: Joi.date().optional(),
-  updatedAt: Joi.date().optional(),
+  updatedAt: Joi.date().allow("").optional(),
   deletedAt: Joi.date().allow("").optional(),
 });
 
@@ -56,7 +56,6 @@ export function modelSystemInfo(value) {
     footerText: value.footerText ?? "",
     privacyPolicy: value.privacyPolicy ?? "",
     termsAndConditions: value.termsAndConditions ?? "",
-    updatedBy: value.updatedBy ? new ObjectId(value.updatedBy) : null,
     createdAt: value.createdAt ?? new Date(),
     updatedAt: value.updatedAt ?? "",
     deletedAt: value.deletedAt ?? "",
