@@ -5,7 +5,7 @@
       <v-container class="d-flex align-center justify-space-between">
         <!-- Logo / Title -->
         <NuxtLink to="/" class="text-h6 font-weight-bold text-white text-decoration-none">
-          Happy Paws Veterinary Clinic
+          {{ systemInfo?.clinicName || 'Happy Paws Veterinary Clinic' }}
         </NuxtLink>
 
         <!-- Desktop Menu -->
@@ -54,9 +54,17 @@
     <v-footer color="primary" dark class="py-6">
       <v-container class="text-center">
         <p class="text-body-2 mb-0">
-          © {{ new Date().getFullYear() }} Happy Paws Veterinary Clinic
+          © {{ new Date().getFullYear() }} {{ systemInfo?.clinicName || 'Happy Paws Veterinary Clinic' }}
         </p>
       </v-container>
     </v-footer>
   </v-app>
 </template>
+
+<script setup>
+const { systemInfo, getData } = useSystemInfo();
+
+onMounted(async () => {
+    await getData();
+});
+</script>

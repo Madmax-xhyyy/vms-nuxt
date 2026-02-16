@@ -2,17 +2,17 @@
   <v-app>
     <v-main>
       <!-- Hero Section -->
-      <v-container fluid class="py-16 bg-grey-lighten-4">
-        <v-container>
+      <v-container fluid min-height="100vh" class="py-16 bg-grey-lighten-4">
+        <v-container >
           <v-row align="center" justify="center">
             <v-col cols="12" md="6" class="text-center text-md-left">
               <h1 class="text-h4 text-md-h3 font-weight-bold mb-4">
-                Caring for Your Pets Like Family
+                {{ systemInfo?.tagline || 'Caring for Your Pets Like Family' }}
               </h1>
               <p class="text-body-1 mb-6">
-                Professional veterinary care for dogs, cats, and all your beloved pets.
+                {{ systemInfo?.description || 'Professional veterinary care for dogs, cats, and all your beloved pets.' }}
               </p>
-              <v-btn color="primary" size="large" class="mr-2 mb-2">Get Started</v-btn>
+              <v-btn color="primary" size="large" class="mr-2 mb-2 mb-md-0">Get Started</v-btn>
               <v-btn color="primary" variant="outlined" size="large">Learn More</v-btn>
             </v-col>
             <v-col cols="12" md="6">
@@ -61,9 +61,9 @@
               />
             </v-col>
             <v-col cols="12" md="6" order="1" order-md="2" class="mb-6 mb-md-0">
-              <h2 class="text-h5 text-md-h4 font-weight-bold mb-4">About Our Clinic</h2>
+              <h2 class="text-h5 text-md-h4 font-weight-bold mb-4">About {{ systemInfo?.clinicName }}</h2>
               <p class="text-body-1 mb-4">
-                Our experienced veterinarians provide compassionate and modern care for your pets.
+                 {{ systemInfo?.description || 'Our experienced veterinarians provide compassionate and modern care for your pets.' }}
               </p>
               <v-btn color="primary">Meet Our Team</v-btn>
             </v-col>
@@ -86,6 +86,12 @@
 definePageMeta({
   layout: 'public',
 })
+
+const { systemInfo, getData } = useSystemInfo();
+
+onMounted(async () => {
+    await getData();
+});
 
 const services = [
   { title: 'Pet Checkups', desc: 'Routine health exams.', icon: 'mdi-stethoscope' },

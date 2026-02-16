@@ -1,6 +1,6 @@
 <template>
 <v-container class="py-16">
-<h1 class="text-h4 font-weight-bold mb-8 text-center">Our Veterinary Services</h1>
+<h1 class="text-h4 font-weight-bold mb-8 text-center">Services at {{ systemInfo?.clinicName }}</h1>
 <v-row>
 <v-col cols="12" sm="6" md="4" v-for="service in services" :key="service.title">
 <v-card class="pa-6 h-100">
@@ -23,4 +23,10 @@ const services = [
 definePageMeta({
   layout: 'public',
 })
+
+const { systemInfo, getData } = useSystemInfo();
+
+onMounted(async () => {
+    await getData();
+});
 </script>

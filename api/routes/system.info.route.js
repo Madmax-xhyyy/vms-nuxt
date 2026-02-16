@@ -6,7 +6,7 @@ const router = express.Router();
 
 export default function useSystemInfoRoute() {
   // Get system info
-  router.get("/", requireAuth, useSystemInfoController().get);
+  router.get("/", useSystemInfoController().get);
 
   // Upsert system info
   router.post("/", requireAuth, useSystemInfoController().upsert);
