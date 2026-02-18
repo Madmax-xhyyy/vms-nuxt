@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <!-- Hero Section -->
-      <v-container fluid min-height="100vh" class="py-16 bg-grey-lighten-4">
+      <v-container fluid min-height="90vh" class="py-16 bg-grey-lighten-4">
         <v-container >
           <v-row align="center" justify="center">
             <v-col cols="12" md="6" class="text-center text-md-left">
@@ -12,8 +12,8 @@
               <p class="text-body-1 mb-6">
                 {{ systemInfo?.description || 'Professional veterinary care for dogs, cats, and all your beloved pets.' }}
               </p>
-              <v-btn color="primary" size="large" class="mr-2 mb-2 mb-md-0">Get Started</v-btn>
-              <v-btn color="primary" variant="outlined" size="large">Learn More</v-btn>
+              <v-btn color="primary" to="/appointment" size="large" class="mr-2 mb-2 mb-md-0" nuxt>Book Now</v-btn>
+              <v-btn color="primary" to="/about" variant="outlined" size="large" nuxt>Learn More</v-btn>
             </v-col>
             <v-col cols="12" md="6">
               <v-img
@@ -75,7 +75,7 @@
       <v-container class="py-16 text-center">
         <h2 class="text-h5 text-md-h4 font-weight-bold mb-4">Ready to Care for Your Pet?</h2>
         <p class="text-body-1 mb-6">Schedule an appointment today.</p>
-        <v-btn color="primary" size="large">Book an Appointment</v-btn>
+        <v-btn color="primary" to="/appointment" size="large">Book an Appointment</v-btn>
       </v-container>
 
     </v-main>

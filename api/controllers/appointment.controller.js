@@ -99,8 +99,8 @@ export function useAppointmentController() {
     }
 
     try {
-      const message = await _add(value);
-      res.json({ message });
+      const result = await _add(value);
+      res.json(result);
       return;
     } catch (error) {
       next(error);

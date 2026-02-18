@@ -139,7 +139,7 @@
     <!-- Action -->
     <v-toolbar density="compact">
       <v-row no-gutters>
-        <v-col cols="6">
+        <v-col cols="6" v-if="localProps.mode !== 'submit-only'">
           <v-btn
             tile
             block
@@ -152,7 +152,7 @@
           </v-btn>
         </v-col>
 
-        <v-col cols="6">
+        <v-col :cols="localProps.mode !== 'submit-only' ? 6 : 12">
           <v-btn
             tile
             block
@@ -184,7 +184,7 @@ const localProps = defineProps({
   },
 });
 
-const emits = defineEmits(["cancel", "success", "submit:add"]);
+const emits = defineEmits(["cancel", "success", "submit:add", "submit-only"]);
 
 const { petTypeKeys, petBreeds, services } = useAppointment();
 
