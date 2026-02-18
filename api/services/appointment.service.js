@@ -5,6 +5,7 @@ import { modelAppoinment } from "../models/appointment.model.js";
 import { modelPatientRecord } from "../models/patient.record.model.js";
 import { usePatientRecordRepo } from "../repositories/patient.record.repository.js";
 import { generateCode } from "../utils/generateCode.js";
+import { sendAppointmentConfirmationEmail } from "../utils/email.js";
 
 export function useAppointmentService() {
   const {
@@ -23,7 +24,7 @@ export function useAppointmentService() {
     try {
       const appointment = modelAppoinment({
         _id: new ObjectId().toHexString(),
-        code: generateCode(), // ✅ GENERATED HERE
+        code: generateCode(),
         fullName: payload.fullName,
         email: payload.email,
         phone: payload.phone,
@@ -39,14 +40,24 @@ export function useAppointmentService() {
         createdAt: new Date(),
       });
 
+      // Save to DB
       await _add(appointment);
 
-      logger.log({
-        level: "info",
-        message: `Appointment added successfully. Code: ${appointment.code}`,
-      });
+      logger.info(`Appointment added successfully. Code: ${appointment.code}`);
+
+      // Send confirmation email (fire-and-forget)
+      sendAppointmentConfirmationEmail({
+        to: appointment.email,
+        fullName: appointment.fullName,
+        code: appointment.code,
+        date: appointment.date,
+        time: appointment.time,
+      }).catch((err) =>
+        logger.error(`Failed to send email to ${appointment.email}: ${err.message}`)
+      );
 
       return appointment;
+
     } catch (error) {
       throw new Error(`Failed to add appointment: ${error.message}`);
     }

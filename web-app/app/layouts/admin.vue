@@ -26,13 +26,6 @@
             </v-avatar>
           </v-btn>
         </template>
-
-        <v-list>
-          <v-list-item title="Profile" prepend-icon="mdi-account" />
-          <v-list-item title="Settings" prepend-icon="mdi-cog" />
-          <v-divider />
-          <v-list-item title="Logout" prepend-icon="mdi-logout" />
-        </v-list>
       </v-menu>
     </v-app-bar>
 
