@@ -2,7 +2,7 @@
   <v-app>
     <v-main>
       <!-- Hero Section -->
-      <v-container fluid min-height="90vh" class="py-16 bg-grey-lighten-4">
+      <v-container fluid min-height="80vh" class="py-16 bg-grey-lighten-4">
         <v-container >
           <v-row align="center" justify="center">
             <v-col cols="12" md="6" class="text-center text-md-left">
@@ -65,7 +65,7 @@
               <p class="text-body-1 mb-4">
                  {{ systemInfo?.description || 'Our experienced veterinarians provide compassionate and modern care for your pets.' }}
               </p>
-              <v-btn color="primary">Meet Our Team</v-btn>
+              <v-btn color="primary" to="/about">Learn More</v-btn>
             </v-col>
           </v-row>
         </v-container>
