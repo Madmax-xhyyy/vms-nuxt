@@ -35,6 +35,7 @@ app.get("/health", (req, res) => {
 
 
 // Routes Import
+import "./scheduler/appointmentReminder.js";
 import useAuthRoute from "./routes/auth.route.js";
 import useProductRoute from "./routes/product.route.js";
 import useAppointmentRoute from "./routes/appointment.route.js";

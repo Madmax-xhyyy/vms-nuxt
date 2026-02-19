@@ -9,8 +9,7 @@ export function useAppointment() {
     petBreed: "",
     petAge: "",
     services: [],
-    date: "",
-    time: "",
+    dateTime: "",
   });
 
   const petTypeOptions = {

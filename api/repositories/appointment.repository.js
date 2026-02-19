@@ -14,6 +14,13 @@ export function useAppointmentRepo() {
 
   async function createAppointmentIndexes() {
     try {
+      // Drop the old text index if it exists (e.g. after schema changes)
+      try {
+        await collection.dropIndex("appointmentTextSearch");
+      } catch (_) {
+        // Index may not exist yet — that's fine
+      }
+
       await collection.createIndexes([
         { key: { status: 1 } },
         {
@@ -28,8 +35,7 @@ export function useAppointmentRepo() {
             petBreed: "text",
             petAge: "text",
             services: "text",
-            date: "text",
-            time: "text",
+            dateTime: "text",
             status: "text",
           },
           name: "appointmentTextSearch",

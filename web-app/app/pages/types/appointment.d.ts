@@ -10,8 +10,7 @@ declare type TAppointment = {
   petBreed: string;
   petAge: string;
   services: string[];
-  date?: string | Date;
-  time?: string;
+  dateTime?: string | Date;
   status?: string;
   createdAt?: Date;
   updatedAt?: Date;

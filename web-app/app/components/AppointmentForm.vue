@@ -112,21 +112,11 @@
 
         <!-- Schedule -->
         <v-row>
-          <v-col cols="12" md="6">
+          <v-col cols="12">
             <v-text-field
-              v-model="formModel.date"
-              label="Date"
-              type="date"
-              variant="outlined"
-              :rules="[requiredRule]"
-            />
-          </v-col>
-
-          <v-col cols="12" md="6">
-            <v-text-field
-              v-model="formModel.time"
-              label="Time"
-              type="time"
+              v-model="formModel.dateTime"
+              label="Date & Time"
+              type="datetime-local"
               variant="outlined"
               :rules="[requiredRule]"
             />

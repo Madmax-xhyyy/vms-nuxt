@@ -34,8 +34,7 @@ export function useAppointmentService() {
         petBreed: payload.petBreed,
         petAge: payload.petAge,
         services: payload.services,
-        date: payload.date,
-        time: payload.time,
+        dateTime: payload.dateTime,
         status: "Pending",
         createdAt: new Date(),
       });
@@ -50,8 +49,7 @@ export function useAppointmentService() {
         to: appointment.email,
         fullName: appointment.fullName,
         code: appointment.code,
-        date: appointment.date,
-        time: appointment.time,
+        dateTime: appointment.dateTime,
       }).catch((err) =>
         logger.error(`Failed to send email to ${appointment.email}: ${err.message}`)
       );
@@ -75,8 +73,7 @@ export function useAppointmentService() {
     const visit = {
       appointmentId: appointment._id,
       services: appointment.services.filter(s => s && s.trim() !== ""),
-      date: appointment.date,
-      time: appointment.time,
+      dateTime: appointment.dateTime,
       notes: "",
     };
 

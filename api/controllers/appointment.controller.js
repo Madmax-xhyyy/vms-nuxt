@@ -132,8 +132,7 @@ export function useAppointmentController() {
       petBreed: Joi.string().trim().max(200).required(),
       petAge: Joi.string().trim().max(200).required(),
       services: Joi.string().trim().max(200).required(),
-      date: Joi.date().required(),
-      time: Joi.string().trim().max(200).required(),
+      dateTime: Joi.date().required(),
       status: Joi.string().trim().max(200).required(),
     });
 

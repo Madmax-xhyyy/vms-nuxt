@@ -99,8 +99,7 @@ async function submitAdd() {
       petBreed: "",
       petAge: "",
       services: [],
-      date: "",
-      time: "",
+      dateTime: "",
     };
   } catch (error: any) {
     console.error("Error:", error);

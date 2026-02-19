@@ -20,8 +20,7 @@ export const schemaPatientRecord = Joi.object({
         Joi.object({
           appointmentId: Joi.any().required(),
           services: Joi.array().items(Joi.string()).required(),
-          date: Joi.date().required(),
-          time: Joi.string().required(),
+          dateTime: Joi.date().required(),
           notes: Joi.string().allow("").optional(),
         })
       )

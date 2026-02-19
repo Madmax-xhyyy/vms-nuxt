@@ -67,10 +67,7 @@
             <div class="text-caption text-uppercase font-weight-bold text-grey mb-2">Appointment Schedule</div>
             <v-row no-gutters>
               <v-col cols="12" md="6" class="mb-1">
-                <InputLabel title="Date:" /> {{ formatDate(formModel.date as string) }}
-              </v-col>
-              <v-col cols="12" md="6" class="mb-1">
-                <InputLabel title="Preferred Time:" /> {{ formatTime(formModel.time as string) }}
+                <InputLabel title="Date & Time:" /> {{ formatDateTime(formModel.dateTime as string) }}
               </v-col>
             </v-row>
             <v-row no-gutters>
@@ -208,33 +205,21 @@ const formattedServices = computed(() => {
   return [] as string[];
 });
 
-const formatDate = (date?: string | Date) => {
-  if (!date) return 'Not set';
-  return new Date(date).toLocaleDateString('en-US', {
+const formatDateTime = (dateTime?: string | Date) => {
+  if (!dateTime) return 'Not set';
+  const dt = new Date(dateTime);
+  const datePart = dt.toLocaleDateString('en-US', {
     weekday: 'short',
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   });
-};
-
-const formatTime = (timeString?: string) => {
-  if (!timeString) return 'Not set';
-
-  const parts = timeString.split(':').map(Number);
-  if (parts.length < 2 || parts.some(isNaN)) return 'Invalid time';
-
-  const hours = parts[0] as number;
-  const minutes = parts[1] as number;
-  
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-
-  return date.toLocaleTimeString('en-US', {
+  const timePart = dt.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   });
+  return `${datePart} at ${timePart}`;
 };
 
 const formModel = defineModel({

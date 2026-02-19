@@ -14,9 +14,9 @@ export const sendAppointmentConfirmationEmail = async ({
   to,
   fullName,
   code,
-  date,
-  time,
+  dateTime,
 }) => {
+  const dt = new Date(dateTime);
   const emailData = {
     sender: {
       email: process.env.BREVO_USER,
@@ -36,8 +36,8 @@ export const sendAppointmentConfirmationEmail = async ({
         <p>Your appointment has been <strong>confirmed</strong>.</p>
 
         <p>
-          <strong>Date:</strong> ${new Date(date).toLocaleDateString()}<br>
-          <strong>Time:</strong> ${time}<br>
+          <strong>Date:</strong> ${dt.toLocaleDateString()}<br>
+          <strong>Time:</strong> ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}<br>
           <strong>Appointment Code:</strong> ${code}
         </p>
 

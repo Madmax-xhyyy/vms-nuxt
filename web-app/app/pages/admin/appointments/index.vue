@@ -96,11 +96,8 @@
           style="max-height: calc(100vh - (200px))"
           @click:row="handleRowClick"
         >
-          <template #item.date="{ item }">
-            {{ formatDate(item.date) }}
-          </template>
-          <template #item.time="{ item }">
-            {{ formatTime(item.time)  }}
+          <template #item.dateTime="{ item }">
+            {{ formatDateTime(item.dateTime) }}
           </template>
         </v-data-table>
       </v-card>
@@ -175,8 +172,7 @@ const disabledDelete = ref(false);
 const pendingStatus = ref("");
 
 const headers = [
-  { title: "Date", value: "date" },
-  { title: "Time", value: "time" },
+  { title: "Date & Time", value: "dateTime" },
   { title: "Full Name", value: "fullName" },
   { title: "Pet Name", value: "petName" },
 ];
@@ -189,29 +185,18 @@ const statuses = [
 
 const status = computed(() => (route.query.status as string) ?? "Approved");
 
-function formatDate(date: string) {
-  return new Date(date).toLocaleDateString("en-US", {
+function formatDateTime(dateTime: string) {
+  if (!dateTime) return 'Not set';
+  const dt = new Date(dateTime);
+  return dt.toLocaleString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
   });
 }
-
-const formatTime = (timeString?: string) => {
-  if (!timeString) return 'Not set';
-
-  const parts = timeString.split(':').map(Number);
-  if (parts.length < 2 || parts.some(isNaN)) return 'Invalid time';
-
-  const hours = parts[0] as number;
-  const minutes = parts[1] as number;
-
-  return new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  }).format(new Date().setHours(hours, minutes, 0, 0));
-};
 
 const { appointment, getAllAppointments, updateStatusById, deleteById } = useAppointment();
 
@@ -257,8 +242,7 @@ function resetForm() {
     petBreed: "",
     petAge: "",
     services: [],
-    date: "",
-    time: "",
+    dateTime: "",
   };
 }
 
