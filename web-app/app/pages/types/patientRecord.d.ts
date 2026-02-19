@@ -1,8 +1,7 @@
 declare type TVisit = {
   appointmentId: string; // MongoDB ObjectId as string
   services: string[];
-  date: string | Date;
-  time: string;
+  dateTime?: string | Date;
   notes?: string;
 };
 

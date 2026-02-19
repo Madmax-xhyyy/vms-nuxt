@@ -83,7 +83,7 @@
             <v-table density="comfortable">
               <thead class="bg-blue-lighten-5">
                 <tr>
-                  <th>Date</th>
+                  <th>Date & Time</th>
                   <th>Services</th>
                 </tr>
               </thead>
@@ -92,7 +92,7 @@
                   v-for="(visit, visitIndex) in pet.history"
                   :key="visitIndex"
                 >
-                  <td>{{ formatDate(visit.date) }}</td>
+                  <td>{{formatDateTime(visit.dateTime)}}</td>
                   <td>
                     <v-chip
                       v-for="(service, i) in visit.services"
@@ -182,12 +182,20 @@ const formModel = defineModel({
   default: () => usePatientRecord().patientRecord.value,
 });
 
-const formatDate = (date?: string | Date) => {
-  if (!date) return "—";
-  return new Date(date).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+const formatDateTime = (dateTime?: string | Date) => {
+  if (!dateTime) return 'Not set';
+  const dt = new Date(dateTime);
+  const datePart = dt.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
+  const timePart = dt.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${datePart} at ${timePart}`;
 };
+
 </script>

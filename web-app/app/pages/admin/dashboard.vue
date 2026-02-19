@@ -146,7 +146,7 @@
                   <td>{{ item.code }}</td>
                   <td>{{ item.fullName }}</td>
                   <td>{{ item.petName }}</td>
-                  <td>{{ formatDate(item.date) }}</td>
+                  <td>{{ formatDateTime(item.dateTime) }}</td>
                   <td>
                     <v-chip
                       size="x-small"
@@ -211,7 +211,7 @@ interface Appointment {
   code: string
   fullName: string
   petName: string
-  date: string | Date
+  dateTime: string | Date
   status: string
 }
 
@@ -259,13 +259,21 @@ function getStatusColor(status: string) {
   }
 }
 
-function formatDate(date: string | Date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  })
-}
+const formatDateTime = (dateTime?: string | Date) => {
+  if (!dateTime) return 'Not set';
+  const dt = new Date(dateTime);
+  const datePart = dt.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  const timePart = dt.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+  return `${datePart} at ${timePart}`;
+};
 
 const { appointment } = useAppointment();
 const form = ref(appointment);
@@ -281,8 +289,7 @@ function resetForm() {
     petBreed: "",
     petAge: "",
     services: [],
-    date: "",
-    time: "",
+    dateTime: "",
   };
 }
 
