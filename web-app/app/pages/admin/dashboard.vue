@@ -306,6 +306,8 @@ async function submitAdd() {
     });
     dialogAdd.value = false;
     resetForm();
+    fetchDashboardData();
+    
   } catch (error) {
     console.error("Error:", error);
   }

@@ -43,6 +43,7 @@ import usePatientRecordRoute from "./routes/patient.record.route.js";
 import useUploadRoute from "./routes/upload.route.js";
 import useSystemInfoRoute from "./routes/system.info.route.js";
 import useUserRoute from "./routes/user.route.js";
+import useNotificationRoute from "./routes/notification.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -72,6 +73,7 @@ connectToDB().then(async () => {
   app.use("/api/upload", useUploadRoute());
   app.use("/api/system-info", useSystemInfoRoute());
   app.use("/api/user", useUserRoute());
+  app.use("/api/notifications", useNotificationRoute());
 
   // Error handling middleware (must be last)
   app.use(errorHandler);

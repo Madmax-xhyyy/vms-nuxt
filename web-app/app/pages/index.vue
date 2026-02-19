@@ -12,7 +12,7 @@
               <p class="text-body-1 mb-6">
                 {{ systemInfo?.description || 'Professional veterinary care for dogs, cats, and all your beloved pets.' }}
               </p>
-              <v-btn color="primary" to="/appointment" size="large" class="mr-2 mb-2 mb-md-0" nuxt>Book Now</v-btn>
+              <v-btn color="primary" to="/appointment" size="large" class="mr-sm-2 mb-2 mb-sm-0" nuxt>Book Now</v-btn>
               <v-btn color="primary" to="/about" variant="outlined" size="large" nuxt>Learn More</v-btn>
             </v-col>
             <v-col cols="12" md="6">
