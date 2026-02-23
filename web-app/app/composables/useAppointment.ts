@@ -76,6 +76,13 @@ export function useAppointment() {
     });
   }
 
+  function getBusySlots(date: string) {
+    return $fetch<string[]>(`/api/appointments/busy-slots`, {
+      method: "GET",
+      query: { date },
+    });
+  }
+
   return {
     appointment,
     petTypeOptions,
@@ -87,5 +94,6 @@ export function useAppointment() {
     updateStatusById,
     getAllAppointments,
     deleteById,
+    getBusySlots,
   };
 }

@@ -46,12 +46,12 @@
           </h3>
 
           <v-form>
-            <v-text-field color="white" label="Full Name" required />
-            <v-text-field color="white" label="Email" type="email" required />
-            <v-text-field color="white" label="Phone Number" />
-            <v-textarea color="white" label="Message" rows="4" required />
+            <v-text-field  label="Full Name" required />
+            <v-text-field label="Email" type="email" required />
+            <v-text-field label="Phone Number" />
+            <v-textarea label="Message" rows="4" required />
 
-            <v-btn color="white" size="large" block class="mt-4">
+            <v-btn color="primary" size="large" block class="mt-4">
               Send Message
             </v-btn>
           </v-form>

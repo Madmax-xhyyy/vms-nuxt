@@ -26,26 +26,35 @@
             <v-divider />
 
             <v-card-text class="py-6">
-              <v-row>
-                <v-col cols="12" md="4">
-                  <div class="text-caption text-grey">Full Name</div>
-                  <div class="text-body-1 font-weight-medium">
-                    {{ currentUser?.firstName }} {{ currentUser?.middleName }} {{ currentUser?.lastName }}
-                  </div>
+              <v-row align="center">
+                <v-col cols="12" md="2">
+                  <v-avatar size="100" class="elevation-2">
+                    <v-img :src="currentUser?.profilePicture || 'https://i.pravatar.cc/100'" cover />
+                  </v-avatar>
                 </v-col>
+                <v-col cols="12" md="10">
+                  <v-row>
+                    <v-col cols="12" md="4">
+                      <div class="text-caption text-grey">Full Name</div>
+                      <div class="text-body-1 font-weight-medium">
+                        {{ currentUser?.firstName }} {{ currentUser?.middleName }} {{ currentUser?.lastName }}
+                      </div>
+                    </v-col>
 
-                <v-col cols="12" md="4">
-                  <div class="text-caption text-grey">Email Address</div>
-                  <div class="text-body-1 font-weight-medium">
-                    {{ currentUser?.email }}
-                  </div>
-                </v-col>
+                    <v-col cols="12" md="4">
+                      <div class="text-caption text-grey">Email Address</div>
+                      <div class="text-body-1 font-weight-medium">
+                        {{ currentUser?.email }}
+                      </div>
+                    </v-col>
 
-                <v-col cols="12" md="4">
-                  <div class="text-caption text-grey">Role</div>
-                  <div class="text-body-1 font-weight-medium">
-                    {{ currentUser?.role }}
-                  </div>
+                    <v-col cols="12" md="4">
+                      <div class="text-caption text-grey">Role</div>
+                      <div class="text-body-1 font-weight-medium">
+                        {{ currentUser?.role }}
+                      </div>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
 
@@ -217,6 +226,7 @@ const fetchData = async () => {
         middleName: currentUser.value.middleName || "",
         lastName: currentUser.value.lastName || "",
         email: currentUser.value.email || "",
+        profilePicture: currentUser.value.profilePicture || "",
       } as TUser;
     }
   } catch (error) {

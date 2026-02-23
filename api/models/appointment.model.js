@@ -25,31 +25,30 @@ export const schemaAppoinmentStatusUpdateById = Joi.object({
 });
 
 export function modelAppoinment(value) {
-  const { error } = schemaAppoinment.validate(value);
+  const { error, value: validatedValue } = schemaAppoinment.validate(value);
 
   if (error) {
     throw new Error(
-      "Validation failed: " + error.details.map((d) => d.message).join(", "
-      )
+      "Validation failed: " + error.details.map((d) => d.message).join(", ")
     );
   }
 
   return {
-    _id: value._id ? new ObjectId(value._id) : new ObjectId(),
-    code: value.code,
-    fullName: value.fullName,
-    email: value.email,
-    phone: value.phone,
-    address: value.address,
-    petName: value.petName,
-    petType: value.petType,
-    petBreed: value.petBreed,
-    petAge: value.petAge,
-    services: value.services,
-    dateTime: value.dateTime,
-    status: value.status,
-    createdAt: value.createdAt ?? new Date(),
-    updatedAt: value.updatedAt ?? "",
-    deletedAt: value.deletedAt ?? "",
+    _id: validatedValue._id ? new ObjectId(validatedValue._id) : new ObjectId(),
+    code: validatedValue.code,
+    fullName: validatedValue.fullName,
+    email: validatedValue.email,
+    phone: validatedValue.phone,
+    address: validatedValue.address,
+    petName: validatedValue.petName,
+    petType: validatedValue.petType,
+    petBreed: validatedValue.petBreed,
+    petAge: validatedValue.petAge,
+    services: validatedValue.services,
+    dateTime: validatedValue.dateTime,
+    status: validatedValue.status,
+    createdAt: validatedValue.createdAt ?? new Date(),
+    updatedAt: validatedValue.updatedAt ?? "",
+    deletedAt: validatedValue.deletedAt ?? "",
   };
 }

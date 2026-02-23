@@ -13,7 +13,8 @@ export function useAppointmentController() {
     updateById: _updateById,
     updateStatusById: _updateStatusById,
     getAppointmentStatusCounts: _getAppointmentStatusCounts,
-    deleteById: _deleteById
+    deleteById: _deleteById,
+    getBusySlotsByDate: _getBusySlotsByDate
   } = useAppointmentRepo();
 
   const {
@@ -131,7 +132,7 @@ export function useAppointmentController() {
       petType: Joi.string().trim().max(200).required(),
       petBreed: Joi.string().trim().max(200).required(),
       petAge: Joi.string().trim().max(200).required(),
-      services: Joi.string().trim().max(200).required(),
+      services: Joi.array().items(Joi.string().trim().min(1)).min(1).required(),
       dateTime: Joi.date().required(),
       status: Joi.string().trim().max(200).required(),
     });
@@ -236,5 +237,28 @@ export function useAppointmentController() {
     }
   }
 
-  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, getAppointmentStats, deleteById };
+  async function getBusySlots(req, res, next) {
+    const date = req.query.date;
+
+    const validation = Joi.object({
+      date: Joi.date().required(),
+    });
+
+    const { error } = validation.validate({ date });
+
+    if (error) {
+      next(new BadRequestError(error.message));
+      return;
+    }
+
+    try {
+      const slots = await _getBusySlotsByDate(date);
+      res.json(slots);
+      return;
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, getAppointmentStats, deleteById, getBusySlots };
 }

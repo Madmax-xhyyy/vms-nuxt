@@ -8,6 +8,52 @@
 
     <v-card-text>
       <v-form v-model="formValid">
+        <v-row justify="center" class="mb-6">
+          <v-col cols="auto" class="text-center">
+            <v-hover v-slot="{ isHovering, props }">
+              <v-avatar
+                size="120"
+                class="elevation-4 cursor-pointer position-relative"
+                v-bind="props"
+                @click="triggerFileInput"
+              >
+                <v-img
+                  :src="formModel.profilePicture || 'https://i.pravatar.cc/120'"
+                  cover
+                >
+                  <template #placeholder>
+                    <v-row class="fill-height ma-0" align="center" justify="center">
+                      <v-progress-circular indeterminate color="primary" />
+                    </v-row>
+                  </template>
+                </v-img>
+                <v-fade-transition>
+                  <div
+                    v-if="isHovering || uploading"
+                    class="d-flex align-center justify-center position-absolute fill-height w-100"
+                    style="background: rgba(0, 0, 0, 0.4); bottom: 0; left: 0"
+                  >
+                    <v-progress-circular
+                      v-if="uploading"
+                      indeterminate
+                      color="white"
+                    />
+                    <v-icon v-else color="white" size="32">mdi-camera</v-icon>
+                  </div>
+                </v-fade-transition>
+              </v-avatar>
+            </v-hover>
+            <div class="text-caption text-grey mt-2">Click to change photo</div>
+            <input
+              ref="fileInput"
+              type="file"
+              accept="image/*"
+              class="d-none"
+              @change="onFileSelected"
+            />
+          </v-col>
+        </v-row>
+
         <v-row>
           <v-col cols="12" md="6">
             <v-text-field
@@ -72,7 +118,7 @@
             color="primary"
             class="text-none"
             size="48"
-            :disabled="!formValid"
+            :disabled="!formValid || uploading"
             @click="emits('submit:update')"
           >
             Save Changes
@@ -102,5 +148,37 @@ const formModel = defineModel("form", {
   default: () => useUser().user,
 });
 
+const fileInput = ref<HTMLInputElement | null>(null);
+const uploading = ref(false);
 
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+const onFileSelected = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files?.[0];
+  if (!file) return;
+
+  uploading.value = true;
+  const formData = new FormData();
+  formData.append("image", file);
+  formData.append("folder", "profile_pictures");
+
+  try {
+    const response = await $fetch<{ imageUrl: string }>("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+    
+    if (response.imageUrl) {
+      formModel.value.profilePicture = response.imageUrl;
+    }
+  } catch (error) {
+    console.error("Error uploading profile picture:", error);
+    // You might want to show a snackbar error here
+  } finally {
+    uploading.value = false;
+  }
+};
 </script>

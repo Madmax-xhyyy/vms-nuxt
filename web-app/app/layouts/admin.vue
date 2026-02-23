@@ -78,7 +78,7 @@
         <template #activator="{ props }">
           <v-btn icon v-bind="props">
             <v-avatar size="32">
-              <v-img src="https://i.pravatar.cc/100" />
+              <v-img :src="currentUser?.profilePicture || 'https://i.pravatar.cc/100'" />
             </v-avatar>
           </v-btn>
         </template>
@@ -147,6 +147,7 @@ const pendingCount = ref(0)
 const route = useRoute()
 
 const { mdAndUp, smAndDown } = useDisplay();
+const { currentUser, getCurrentUser } = useUser();
 
 // ── Notifications ──────────────────────────────────────────────
 const notifMenu = ref(false)
@@ -204,6 +205,7 @@ function formatRelative(dateStr) {
 
 let pollInterval = null
 onMounted(() => {
+  getCurrentUser()
   fetchUnreadCount()
   pollInterval = setInterval(fetchUnreadCount, 60000)
 })

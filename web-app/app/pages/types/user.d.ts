@@ -6,4 +6,5 @@ declare type TUser = {
   email: string;
   role?: string;
   status?: string;
+  profilePicture?: string;
 };

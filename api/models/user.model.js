@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { ObjectId } from "mongodb";
 
 export const schemaUser = Joi.object({
   _id: Joi.any().optional(),
@@ -9,6 +10,7 @@ export const schemaUser = Joi.object({
   password: Joi.string().min(4).required(),
   role: Joi.string().optional().allow("", null),
   status: Joi.string().optional().allow("", null),
+  profilePicture: Joi.string().optional().allow("", null),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
 });
@@ -22,6 +24,7 @@ export const schemaUserUpdate = Joi.object({
   password: Joi.string().min(4).optional(),
   role: Joi.string().optional().allow("", null),
   status: Joi.string().optional().allow("", null),
+  profilePicture: Joi.string().optional().allow("", null),
   createdAt: Joi.date().optional(),
   updatedAt: Joi.date().optional(),
 });
@@ -44,6 +47,7 @@ export function modelUser(value) {
     password: value.password,
     role: value.role ?? "admin",
     status: value.status ?? "active",
+    profilePicture: value.profilePicture ?? "",
     createdAt: value.createdAt ?? new Date(),
     updatedAt: value.updatedAt ?? "",
   };

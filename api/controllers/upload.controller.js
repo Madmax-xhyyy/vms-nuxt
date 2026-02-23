@@ -6,7 +6,8 @@ export async function uploadImageController(req, res) {
       return res.status(400).json({ message: "No image uploaded" });
     }
 
-    const imageUrl = await uploadImage(req.file.buffer, req.file.mimetype);
+    const folder = req.body.folder || req.query.folder || "products";
+    const imageUrl = await uploadImage(req.file.buffer, req.file.mimetype, folder);
 
     res.json({ imageUrl });
   } catch (error) {

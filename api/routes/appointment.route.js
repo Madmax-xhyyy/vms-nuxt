@@ -29,5 +29,8 @@ export default function useAppointmentRoute() {
   // Delete by id
   router.delete("/id/:id", requireAuth, useAppointmentController().deleteById);
 
+  // Get busy slots
+  router.get("/busy-slots", useAppointmentController().getBusySlots);
+
   return router;
 }

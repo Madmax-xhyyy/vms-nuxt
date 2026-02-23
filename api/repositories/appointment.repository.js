@@ -168,7 +168,7 @@ export function useAppointmentRepo() {
       throw new Error("Invalid Id format");
     }
 
-    const { error } = schemaAppoinment.validate(value);
+    const { error, value: validatedValue } = schemaAppoinment.validate(value);
     if (error) {
       throw new Error(
         "Validation failed: " + error.details.map((d) => d.message).join(", ")
@@ -176,7 +176,8 @@ export function useAppointmentRepo() {
     }
 
     try {
-      await collection.updateOne({ _id: id }, { $set: value });
+      // Use validatedValue to ensure dateTime is a Date object
+      await collection.updateOne({ _id: id }, { $set: validatedValue });
       return "Successfully updated appointment";
     } catch (error) {
       logger.log({ level: "error", message: "Failed to update appointment: " + error.message });
@@ -228,5 +229,35 @@ export function useAppointmentRepo() {
     }
   }
 
-  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, getAppointmentStatusCounts, deleteById, createAppointmentIndexes };
+  async function getBusySlotsByDate(dateStr) {
+    try {
+      // dateStr is YYYY-MM-DD from client
+      const [year, month, day] = dateStr.split("-").map(Number);
+
+      // Query a wide window (+/- 24h) to cover all possible timezone offsets
+      // and ensure we don't miss appointments near day boundaries.
+      const targetDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+
+      const start = new Date(targetDate);
+      start.setUTCDate(start.getUTCDate() - 1); // 24h before
+
+      const end = new Date(targetDate);
+      end.setUTCDate(end.getUTCDate() + 2); // 48h window total
+
+      const appointments = await collection.find({
+        status: { $in: ["Pending", "Approved"] },
+        dateTime: {
+          $gte: start,
+          $lte: end
+        }
+      }).project({ dateTime: 1 }).toArray();
+
+      logger.info(`Fetching busy slots for ${dateStr}: found ${appointments.length} slots`);
+      return appointments.map(a => a.dateTime);
+    } catch (error) {
+      throw new Error("Failed to get busy slots: " + error.message);
+    }
+  }
+
+  return { getAll, getAllPendingAppointments, getById, add, updateById, updateStatusById, getAppointmentStatusCounts, deleteById, createAppointmentIndexes, getBusySlotsByDate };
 }
