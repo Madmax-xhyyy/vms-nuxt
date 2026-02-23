@@ -16,6 +16,13 @@ export default defineNuxtConfig({
     },
     //...
   ],
+  app: {
+    head: {
+      link: [
+        { rel: "icon", type: "image/png", href: "/logo.png" },
+      ],
+    },
+  },
   vite: {
     vue: {
       template: {
