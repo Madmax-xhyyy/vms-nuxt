@@ -3,15 +3,15 @@
     <v-card class="pa-6 login-card" max-width="420" width="100%" elevation="12">
       <!-- Header -->
       <div class="text-center mb-6">
-        <v-icon size="48" color="primary">mdi-shield-account</v-icon>
-        <h1 class="text-h5 font-weight-bold mt-2">Admin Login</h1>
+        <v-icon size="48" color="primary">mdi-lock-reset</v-icon>
+        <h1 class="text-h5 font-weight-bold mt-2">Forgot Password</h1>
         <p class="text-body-2 text-grey">
-          Veterinary Management System
+          Enter your email to receive a reset link
         </p>
       </div>
 
       <!-- Form -->
-      <v-form>
+      <v-form v-model="valid">
         <v-text-field
           v-model="email"
           label="Email Address"
@@ -22,34 +22,10 @@
           class="mb-3"
         />
 
-        <v-text-field
-          v-model="password"
-          label="Password"
-          prepend-inner-icon="mdi-lock"
-          variant="outlined"
-          density="comfortable"
-          :type="showPassword ? 'text' : 'password'"
-          :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-          @click:append-inner="showPassword = !showPassword"
-          :rules="[requiredInput, minFourInput]"
-        />
-
-        <div class="d-flex justify-end mt-n2">
-          <v-btn
-            variant="text"
-            size="small"
-            class="text-none px-0"
-            color="primary"
-            :to="{ name: 'admin-forgot-password' }"
-          >
-            Forgot Password?
-          </v-btn>
-        </div>
-
-        <!-- Error Message -->
+        <!-- Success/Error Message -->
         <v-alert
           v-if="message"
-          type="error"
+          :type="isError ? 'error' : 'success'"
           variant="tonal"
           class="mt-4"
           density="compact"
@@ -63,10 +39,20 @@
           size="large"
           block
           class="mt-6"
-          @click="login"
-          :disabled="!email || !password"
+          @click="submit"
+          :disabled="!valid || loading"
+          :loading="loading"
         >
-          Login
+          Send Reset Link
+        </v-btn>
+
+        <v-btn
+          variant="text"
+          block
+          class="mt-2 text-none"
+          :to="{ name: 'admin-login' }"
+        >
+          Back to Login
         </v-btn>
       </v-form>
     </v-card>
@@ -79,16 +65,13 @@ definePageMeta({
 });
 
 const email = ref("");
-const password = ref("");
-const showPassword = ref(false);
+const loading = ref(false);
 const message = ref("");
+const isError = ref(false);
+const valid = ref(false);
 
 function requiredInput(value) {
   return !!value || "This field is required";
-}
-
-function minFourInput(value) {
-  return (value && value.length >= 4) || "Minimum 4 characters";
 }
 
 function isValidEmail(value) {
@@ -96,24 +79,21 @@ function isValidEmail(value) {
   return emailRegex.test(value) || "Invalid email format";
 }
 
-async function login() {
+async function submit() {
+  loading.value = true;
+  message.value = "";
   try {
-    const { cookieConfig } = useRuntimeConfig().public;
-
-    const data = await $fetch("/api/auth", {
+    const data = await $fetch("/api/auth/forgot-password", {
       method: "POST",
-      body: {
-        email: email.value,
-        password: password.value,
-      },
+      body: { email: email.value },
     });
-
-    useCookie("user", cookieConfig).value = data.user;
-
-    await navigateTo({ name: "admin-dashboard" });
+    message.value = data.message;
+    isError.value = false;
   } catch (error) {
-    message.value =
-      error?.response?._data?.message || "Login failed";
+    message.value = error?.response?._data?.message || "Something went wrong";
+    isError.value = true;
+  } finally {
+    loading.value = false;
   }
 }
 </script>

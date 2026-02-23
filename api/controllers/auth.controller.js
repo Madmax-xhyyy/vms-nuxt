@@ -4,7 +4,11 @@ import { BadRequestError } from "../utils/error.util.js";
 import { DOMAIN } from "../config.js";
 
 export function useAuthController() {
-  const { login: _login } = useAuthService();
+  const {
+    login: _login,
+    forgotPassword: _forgotPassword,
+    resetPassword: _resetPassword,
+  } = useAuthService();
 
   async function login(req, res, next) {
     const validation = Joi.object({
@@ -35,5 +39,24 @@ export function useAuthController() {
     }
   }
 
-  return { login };
+  async function forgotPassword(req, res, next) {
+    try {
+      const result = await _forgotPassword(req.body.email);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async function resetPassword(req, res, next) {
+    try {
+      const { token, newPassword } = req.body;
+      const result = await _resetPassword(token, newPassword);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  return { login, forgotPassword, resetPassword };
 }

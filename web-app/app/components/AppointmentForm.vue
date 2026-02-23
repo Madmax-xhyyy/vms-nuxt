@@ -225,12 +225,17 @@ const timeSlots = [
 ];
 
 const timeSlotItems = computed(() => {
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}`;
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+
   return timeSlots.map(time => {
+    // 1. Check if busy/occupied
     const isBusy = busySlots.value.some(busyTime => {
       const bt = new Date(busyTime);
       if (isNaN(bt.getTime())) return false;
       
-      // Strict check: must be the same LOCAL day as selectedDate
       const year = bt.getFullYear();
       const month = (bt.getMonth() + 1).toString().padStart(2, "0");
       const day = bt.getDate().toString().padStart(2, "0");
@@ -244,11 +249,25 @@ const timeSlotItems = computed(() => {
       return busySlotTime === time;
     });
 
+    // 2. Check if passed (only if selectedDate is today)
+    let isPassed = false;
+    if (selectedDate.value === todayStr) {
+      const [h, m] = time.split(":").map(Number);
+      if (h! < currentHour || (h === currentHour && m! <= currentMinute)) {
+        isPassed = true;
+      }
+    }
+
+    const isDisabled = isBusy || isPassed;
+    let title = time;
+    if (isBusy) title += " - Occupied";
+    else if (isPassed) title += " - Not Applicable";
+
     return {
-      title: isBusy ? `${time} - Occupied` : time,
+      title,
       value: time,
       props: {
-        disabled: isBusy
+        disabled: isDisabled
       }
     };
   });
