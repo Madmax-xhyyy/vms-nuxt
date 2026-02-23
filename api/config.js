@@ -7,8 +7,7 @@ export const REDIS_HOST = process.env.REDIS_HOST ?? "";
 export const REDIS_PORT = process.env.REDIS_PORT ?? 6379;
 export const REDIS_PASSWORD = process.env.REDIS_PASSWORD ?? "";
 export const PORT = process.env.PORT ?? 5000;
-export const DEFAULT_USER_EMAIL =
-  process.env.DEFAULT_USER_EMAIL ?? "admin@vms.com";
-export const DEFAULT_USER_PASSWORD =
-  process.env.DEFAULT_USER_PASSWORD ?? "@iamsurelyvms!";
+export const DEFAULT_USER_EMAIL = process.env.DEFAULT_USER_EMAIL ?? "";
+export const DEFAULT_USER_PASSWORD = process.env.DEFAULT_USER_PASSWORD ?? "";
 export const DOMAIN = process.env.DOMAIN ?? "localhost";
+export const BREVO_API_KEY = process.env.BREVO_API_KEY ?? "";
