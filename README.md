@@ -74,5 +74,5 @@ vms-nuxt/
    - Run `npm run dev`.
 3. **Frontend Setup:**
    - Navigate to `web-app/`.
-   - Run `npm install`. (Requires Node.js 18+)
-   - Run `npm run dev`.
+   - Run `yarn`. (Requires Node.js 18+)
+   - Run `yarn dev`.
