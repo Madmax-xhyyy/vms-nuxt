@@ -27,8 +27,9 @@ export function useAuthController() {
 
       // Set session cookie
       res.cookie("sid", data.sid, {
-        domain: DOMAIN,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        httpOnly: true,
         maxAge: 30 * 24 * 60 * 60,
       });
 
