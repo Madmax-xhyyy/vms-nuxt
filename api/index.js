@@ -22,7 +22,7 @@ async function connectToDB() {
 
 // Middleware Pipeline
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: "https://fureverclinic.vercel.app",
   credentials: true
 }));
 app.use(express.json({ limit: "50mb" }));
