@@ -68,5 +68,5 @@ export function useSystemInfoRepo() {
     }
   }
 
-  return { get, upsert };
+  return { get, upsert, createSystemInfoIndexes };
 }
