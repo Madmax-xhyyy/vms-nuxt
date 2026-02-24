@@ -36,9 +36,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      API: process.env.API || "http://localhost:5000",
+      API: process.env.API || "https://vms-nuxt.onrender.com",
       cookieConfig: {
-        domain: (process.env.DOMAIN as string) ?? "localhost",
+        domain: (process.env.DOMAIN as string) ?? "vms-nuxt.onrender.com",
         secure: process.env.NODE_ENV === "production",
         maxAge: 30 * 24 * 60 * 60,
       },

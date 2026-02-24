@@ -7,6 +7,13 @@ export const logger = winston.createLogger({
     winston.format.json()
   ),
   transports: [
+    // Console transport for cloud logging (Render, Vercel, etc.)
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      )
+    }),
     // File transport (optional)
     new winston.transports.File({ filename: "error.log", level: "error" }),
     new winston.transports.File({ filename: "combined.log" }),

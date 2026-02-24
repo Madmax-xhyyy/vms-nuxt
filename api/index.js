@@ -22,7 +22,7 @@ async function connectToDB() {
 
 // Middleware Pipeline
 app.use(cors({
-  origin: "https://fureverclinic.vercel.app",
+  origin: process.env.ALLOWED_ORIGIN || "https://fureverclinic.vercel.app",
   credentials: true
 }));
 app.use(express.json({ limit: "50mb" }));
@@ -30,7 +30,12 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Health Check Route
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", message: "API is running" });
+  const dbStatus = db ? "connected" : "disconnected";
+  res.json({
+    status: "ok",
+    message: "API is running",
+    db: dbStatus
+  });
 });
 
 

@@ -32,7 +32,7 @@ export function useUser() {
       currentUser.value = _user;
       return _user;
     } catch (error) {
-      console.log("Error fetching current user:", error);
+      // Error is handled by the caller or ignored if appropriate
     }
   }
 
