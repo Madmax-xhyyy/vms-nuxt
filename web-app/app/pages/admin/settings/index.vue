@@ -254,11 +254,10 @@ const submitUpdateUserInfo = async () => {
 };
 
 const submitUpdateSystemInfo = async () => {
-  // Assuming systemInfo has an _id or we use a fixed identifier if it's singleton
-  // Based on useSystemInfo, updateData takes an id.
   try {
     await updateSystemInfo(formSystemInfo.value);
     dialogEditSystemInfo.value = false;
+    await getSystemInfo();
   } catch (error) {
     console.error("Error updating system info:", error);
   } finally {

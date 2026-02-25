@@ -45,19 +45,55 @@
             Send Us a Message
           </h3>
 
-          <v-form>
-            <v-text-field  label="Full Name" required />
-            <v-text-field label="Email" type="email" required />
-            <v-text-field label="Phone Number" />
-            <v-textarea label="Message" rows="4" required />
+          <v-form @submit.prevent="handleSubmit" v-model="isFormValid">
+            <v-text-field 
+              v-model="form.fullName" 
+              label="Full Name" 
+              :rules="[v => !!v || 'Required']"
+              required 
+            />
+            <v-text-field 
+              v-model="form.email" 
+              label="Email" 
+              type="email" 
+              :rules="[v => !!v || 'Required', v => /.+@.+\..+/.test(v) || 'E-mail must be valid']"
+              required 
+            />
+            <v-text-field 
+              v-model="form.phone" 
+              label="Phone Number" 
+            />
+            <v-textarea 
+              v-model="form.message" 
+              label="Message" 
+              rows="4" 
+              :rules="[v => !!v || 'Required']"
+              required 
+            />
 
-            <v-btn color="primary" size="large" block class="mt-4">
+            <v-btn 
+              color="primary" 
+              size="large" 
+              block 
+              class="mt-4" 
+              type="submit"
+              :loading="loading"
+              :disabled="!isFormValid"
+            >
               Send Message
             </v-btn>
           </v-form>
         </v-card>
       </v-col>
     </v-row>
+
+    <!-- Success Snackbar -->
+    <v-snackbar v-model="snackbar" :color="snackbarColor" timeout="3000">
+      {{ snackbarText }}
+      <template v-slot:actions>
+        <v-btn variant="text" @click="snackbar = false">Close</v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -67,6 +103,50 @@ definePageMeta({
 })
 
 const { systemInfo, getData } = useSystemInfo();
+const { $api } = useNuxtApp();
+
+const form = ref({
+  fullName: '',
+  email: '',
+  phone: '',
+  message: ''
+});
+
+const loading = ref(false);
+const isFormValid = ref(false);
+const snackbar = ref(false);
+const snackbarText = ref('');
+const snackbarColor = ref('success');
+
+const handleSubmit = async () => {
+  if (!isFormValid.value) return;
+
+  loading.value = true;
+  try {
+    await $fetch('/api/contacts', {
+      method: 'POST',
+      body: form.value
+    });
+    snackbarText.value = 'Message sent successfully!';
+    snackbarColor.value = 'success';
+    snackbar.value = true;
+    
+    // Reset form
+    form.value = {
+      fullName: '',
+      email: '',
+      phone: '',
+      message: ''
+    };
+  } catch (error) {
+    console.error('Error sending message:', error);
+    snackbarText.value = error.response?._data?.message || 'Failed to send message. Please try again.';
+    snackbarColor.value = 'error';
+    snackbar.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
 
 onMounted(async () => {
     await getData();

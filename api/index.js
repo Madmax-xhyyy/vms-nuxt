@@ -22,7 +22,7 @@ async function connectToDB() {
 
 // Middleware Pipeline
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGIN || "https://fureverclinic.vercel.app",
+  origin: [process.env.ALLOWED_ORIGIN, "http://localhost:3000", "https://fureverclinic.vercel.app"].filter(Boolean),
   credentials: true
 }));
 app.use(express.json({ limit: "50mb" }));
@@ -49,6 +49,7 @@ import useUploadRoute from "./routes/upload.route.js";
 import useSystemInfoRoute from "./routes/system.info.route.js";
 import useUserRoute from "./routes/user.route.js";
 import useNotificationRoute from "./routes/notification.route.js";
+import useContactRoute from "./routes/contact.route.js";
 export let db;
 
 import setup from "./setup.js";
@@ -79,6 +80,7 @@ connectToDB().then(async () => {
   app.use("/api/system-info", useSystemInfoRoute());
   app.use("/api/user", useUserRoute());
   app.use("/api/notifications", useNotificationRoute());
+  app.use("/api/contacts", useContactRoute());
 
   // Error handling middleware (must be last)
   app.use(errorHandler);
